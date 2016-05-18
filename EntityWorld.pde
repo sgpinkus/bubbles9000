@@ -2,9 +2,13 @@ import java.util.*;
 
 /**
  * Collection of Entities.
+ * This class is responsible for update the location of all it's entities, and mapping that location to a grid bin.
+ * the grid of bins allows this classs to implement the getHood() method efficiently.
+ * Also handles collision detection on each update().
  */
-class EntityWorld implements Observer
+class EntityWorld implements Observer, Iterable<Entity>
 {
+  private int maxId = 0;
   public final int w;
   public final int h;
   public final int binSize;
@@ -32,12 +36,14 @@ class EntityWorld implements Observer
   
   /**
    * Add entity.
+   * @todo throw if e's bounds don't fit in a bin.
    */
   public void add(Entity e) {
     int key = getKey(e);
     entities.put(e, key);
     ArrayList<Entity> bucket = getBucket(key);
     bucket.add(e);
+    e.id = ++maxId;
   }
   
   /**
@@ -51,35 +57,34 @@ class EntityWorld implements Observer
   }
   
   /**
-   * Update all entities, taking care of bounds and indexes. 
+   * Get the neighbourhood (9 bins) of e.
    */
-  public void update() {
-    List<Entity> _entities = new ArrayList<Entity>(entities.keySet());
-    for(int i =0; i < _entities.size(); i++) {
-      Entity e = _entities.get(i);
-      checkBounds(e);
-      e.update();
-      updateIndexes(e);
+  public ArrayList<Entity> getHood(Entity e) {
+    ArrayList<Entity> nHood = new ArrayList<Entity>();
+    if(entities.get(e) == null) {
+      throw new RuntimeException();
     }
+    int[] c = keyToArray(getKey(e));
+    for(int i = c[1]-1; i <= c[1]+1; i++) {
+      for(int j = c[0]-1; j <= c[0]+1; j++) {
+        nHood.addAll(getBucket(arrayToKey(new int []{j,i})));
+      }
+    }
+    return nHood;
   }
   
   /**
-   *
+   * Get the bin key of e
    */
-  public void updateIndexes(Entity e) {
-    int key = getKey(e);
-    if(!entities.get(e).equals(key)) {
-      remove(e);
-      add(e);
-    }
-  }
-  
   public int getKey(Entity e) {
     int y = ((int)e.loc.y)/binSize;
     int x = ((int)e.loc.x)/binSize;
     return wBins*y+x;
   }
   
+  /**
+   * Get the bin corresponding to key.
+   */
   public ArrayList<Entity> getBucket(int key) {
     ArrayList<Entity> bucket = grid.get(key);
     if(bucket == null) {
@@ -89,11 +94,38 @@ class EntityWorld implements Observer
     return bucket;
   }
   
+  /**
+   * Turn an integer bin key back into a 2tuple coordinate.
+   */
   public int[] keyToArray(int key) {
     return new int[] {key%wBins, key/wBins}; 
   }
   
-  public void checkBounds(Entity e) {
+  /**
+   * Turn a 2tuple into a bin key.
+   */
+  public int arrayToKey(int[] c) {
+    return c[1]*wBins + c[0]; 
+  }
+  
+  /**
+   * Update all entities, taking care of bounds and indexes. 
+   */
+  public void update() {
+    List<Entity> _entities = new ArrayList<Entity>(entities.keySet());
+    for(int i =0; i < _entities.size(); i++) {
+      Entity e = _entities.get(i);
+      checkBounds(e);
+      collisions(e);
+      e.update();
+      updateIndexes(e); // Must come after e.update().
+    }
+  }
+  
+  /**
+   * Check if e out of bound, and *modify* trajectory if so.
+   */
+  private void checkBounds(Entity e) {
     if(e.loc.x <= 0 || e.loc.x >= width) {
        e.vel.x = -1*e.vel.x;
     }
@@ -102,6 +134,46 @@ class EntityWorld implements Observer
     }
   }
   
+  /**
+   * Finds all colliding objects and adjusts their velocities accordingly.
+   * Just assumes every thing has the same mass.
+   */
+  private void collisions(Entity e) {
+    for(Entity n : getHood(e)) {
+      if(e.intersects(n) && e.id < n.id) {
+        PVector incident = n.loc.copy().sub(e.loc).normalize();
+        PVector[] componentsE = project(incident, e.vel);
+        PVector projE = componentsE[0];
+        PVector perpE = componentsE[1];
+        PVector[] componentsN = project(incident, n.vel);
+        PVector projN = componentsN[0];
+        PVector perpN = componentsN[1];
+        // Determine the speed of n along the incident vector between e and n. Iff its -ve they are colliding.
+        float speedE = projE.dot(incident);
+        float speedN = projN.dot(incident);
+        if(speedE - speedN > 0) {
+        System.out.format("Collision detected: %s, %s\n", projE, projN);
+          e.vel = perpE.add(projE.mult(-1.0));
+          n.vel = perpN.add(projN.mult(-1.0));
+        }
+      }
+    }
+  }
+  
+  /**
+   * Ensure the Entity is in the correct bin.
+   */
+  private void updateIndexes(Entity e) {
+    int key = getKey(e);
+    if(!entities.get(e).equals(key)) {
+      remove(e);
+      add(e);
+    }
+  }
+  
+  /**
+   * Draw the grid and delegate draw to all contained entities.
+   */
   public void draw() {
     update();
     for(Map.Entry<Integer,ArrayList<Entity>> bucket : grid.entrySet()) {
@@ -110,16 +182,22 @@ class EntityWorld implements Observer
         int[] i = keyToArray(bucket.getKey());
         fill(255-size*20); 
         rect(i[0]*binSize, i[1]*binSize, binSize, binSize);
-        println("Bucket " + " " + i[0] + " " + i[1] + " " + size);
+        //println("Bucket " + " " + i[0] + " " + i[1] + " " + size);
       }
     }
     for(Entity e : entities.keySet()) {
-      println(getKey(e) + ", " + keyToArray(getKey(e))[0] + ", " + keyToArray(getKey(e))[1]); 
+      //println(getKey(e) + ", " + keyToArray(getKey(e))[0] + ", " + keyToArray(getKey(e))[1]); 
       e.draw();
     }
   }
-
   
+  public Iterator<Entity> iterator() {
+    return entities.keySet().iterator();
+  }
+
+  /**
+   * Callback for Entity events.
+   */
   public void update(Observable o, Object arg) {
     Entity target = (Entity)o;
     entities.remove(target);

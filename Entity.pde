@@ -6,16 +6,19 @@ import java.util.*;
  */
 class Entity extends Observable
 {
-  /** The center of this Entity*/
+  /** The center of this Entity */
   public PVector loc = new PVector();
-  /** The bounding box of this entity */
-  public PVector bounds = new PVector();
+  /** The current velocity */
   public PVector vel = new PVector();
+  /** Everything is circular and has a bound radius. Make thing simple */
+  float r;
+  /** Every object has a unique id. This helps to totaly order them */
+  int id;
   
-  public Entity(PVector loc, PVector vel, PVector bounds) {
+  public Entity(PVector loc, PVector vel, float r) {
     this.loc = loc;
     this.vel = vel;
-    this.bounds = bounds;
+    this.r = r;
   }
   
   public void update() {
@@ -23,18 +26,12 @@ class Entity extends Observable
   }
   
   public boolean intersects(Entity e) {
-    return false;
-  }
-  
-  public PVector[] getBB() {
-    PVector lt = new PVector(loc.x - bounds.x/2.0, loc.y - bounds.y/2.0);
-    PVector rb = new PVector(loc.x + bounds.x/2.0, loc.y + bounds.y/2.0);
-    return new PVector[] {lt, rb};
+    return this.loc.dist(e.loc) <= (this.r + e.r + 1.0);
   }
   
   public void draw() {
     pushMatrix();
-    ellipse(loc.x, loc.y, 5, 5);
+    ellipse(loc.x, loc.y, r*2, r*2);
     popMatrix();
   }
   
