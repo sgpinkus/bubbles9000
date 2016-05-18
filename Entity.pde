@@ -6,9 +6,11 @@ import java.util.*;
  */
 class Entity extends Observable
 {
+  /** The center of this Entity*/
   public PVector loc = new PVector();
-  public PVector vel = new PVector();
+  /** The bounding box of this entity */
   public PVector bounds = new PVector();
+  public PVector vel = new PVector();
   
   public Entity(PVector loc, PVector vel, PVector bounds) {
     this.loc = loc;
@@ -20,10 +22,24 @@ class Entity extends Observable
     loc = loc.add(vel);
   }
   
+  public boolean intersects(Entity e) {
+    return false;
+  }
+  
+  public PVector[] getBB() {
+    PVector lt = new PVector(loc.x - bounds.x/2.0, loc.y - bounds.y/2.0);
+    PVector rb = new PVector(loc.x + bounds.x/2.0, loc.y + bounds.y/2.0);
+    return new PVector[] {lt, rb};
+  }
+  
   public void draw() {
     pushMatrix();
     ellipse(loc.x, loc.y, 5, 5);
     popMatrix();
+  }
+  
+  public String toString() {
+    return loc.toString();
   }
 }
   
