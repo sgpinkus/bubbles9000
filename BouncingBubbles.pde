@@ -3,6 +3,7 @@
  */
  
 EntityWorld world;
+StdioShipController player1;
 
 void setup() {
   println("In setup()");
@@ -22,6 +23,7 @@ void setupSystem() {
     new PVector(0,0),
     world
   );
+  player1 = new StdioShipController(s);
   world.add(s);  
   for(int i = 0; i < 20; i++) {
     Bubble e = new Bubble(
@@ -41,4 +43,11 @@ void draw() {
   stroke(0, 0, 0);
   strokeWeight(1.2);
   world.draw();
+}
+
+/**
+ * I know no otherway to hook the event.
+ */
+void keyPressed() {
+  player1.keyPressed();
 }

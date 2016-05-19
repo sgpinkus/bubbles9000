@@ -3,11 +3,15 @@
  */
 class Ship extends Entity
 {
+  final float sterringIncrement = PI/16.0;
+  final float dampening = 0.99;
   /** Require a world to seed with projectiles. */
   EntityWorld world;
   /** Heading */
   PVector heading = new PVector(0,1);
+  /** View stuff */
   color myColour;
+  int score = 0;
   
   public Ship(PVector loc, PVector vel, EntityWorld world) {
     super(loc, vel, 7.0);
@@ -31,6 +35,11 @@ class Ship extends Entity
     }
   }
   
+  void update() {
+    super.update();
+    vel.mult(dampening);
+  }
+  
   void draw() {
     pushMatrix();
     translate(loc.x,loc.y);
@@ -38,7 +47,7 @@ class Ship extends Entity
     fill(myColour);
     stroke(myColour);
     rotate(-heading.heading());
-    triangle(-r, -r, r, 0, -r, r);
+    triangle(-r, -r, r*1.5, 0, -r, r);
     popMatrix();
   }
   
@@ -46,15 +55,27 @@ class Ship extends Entity
     addHealth(-1);
   }
   
+  void addScore(int score) {
+    this.score += score;
+  }
+  
   void steerLeft() {
+    heading.rotate(PI/16.0);
   }
   
   void steerRight() {
+    heading.rotate(-PI/16.0);
   }
   
   void applyThrust() {
+    PVector fixedHeading = heading.copy();
+    fixedHeading.y = -1.0*fixedHeading.y;
+    vel = vel.add(fixedHeading);
   }
   
   void fireProjectile() {
+    PVector fixedHeading = new PVector(heading.x, -heading.y);
+    Projectile missile = new Projectile(loc.copy(), fixedHeading.copy().mult(10), this);
+    world.add(missile);
   }  
 }

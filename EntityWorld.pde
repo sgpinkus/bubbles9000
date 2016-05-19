@@ -168,8 +168,10 @@ class EntityWorld implements Observer, Iterable<Entity>
         PVector closing = projE.copy().sub(projN);
         if(closing.dot(incident) > 0) {
           System.out.format("Collision detected: %s, %s\n", projE, projN);
-          e.vel = perpE.add(projE.sub(closing));
-          n.vel = perpN.add(projN.add(closing));
+          if(e.isMassive() && n.isMassive()) {
+            e.vel = perpE.add(projE.sub(closing));
+            n.vel = perpN.add(projN.add(closing));
+          }
           e.collision(n);
           n.collision(e);
         }
