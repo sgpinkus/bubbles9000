@@ -19,7 +19,7 @@ class EntityWorld implements Observer, Iterable<Entity>
   HashMap<Integer,ArrayList<Entity>> grid = new HashMap<Integer,ArrayList<Entity>>();
   
   public EntityWorld(int w, int h, int binSize) {
-    if(binSize < 5 || binSize > width/2 || binSize > height/2) {
+    if(binSize < 5 || binSize > w/2 || binSize > h/2) {
       throw new RuntimeException("Bad bin size.");
     }
     this.w = w;
@@ -136,13 +136,13 @@ class EntityWorld implements Observer, Iterable<Entity>
    * Check if e out of bound, and *modify* trajectory if so.
    */
   private void checkBounds(Entity e) {
-    if(e.loc.x <= 0 || e.loc.x >= width) {
+    if(e.loc.x <= 0 || e.loc.x >= w) {
        if(e.isMassive()) 
          e.vel.x = -1*e.vel.x;
        else
          e.kill();
     }
-    if(e.loc.y <= 0 || e.loc.y >= height) {
+    if(e.loc.y <= 0 || e.loc.y >= h) {
       if(e.isMassive())
         e.vel.y = -1*e.vel.y;
       else
