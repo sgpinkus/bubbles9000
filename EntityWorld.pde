@@ -167,13 +167,13 @@ class EntityWorld implements Observer, Iterable<Entity>
         // Determine the speed of n along the incident vector between e and n. Iff its -ve they are colliding.
         PVector closing = projE.copy().sub(projN);
         if(closing.dot(incident) > 0) {
-          System.out.format("Collision detected: %s, %s\n", projE, projN);
+          //System.out.format("Collision detected: %s, %s\n", projE, projN);
           if(e.isMassive() && n.isMassive()) {
             e.vel = perpE.add(projE.sub(closing));
             n.vel = perpN.add(projN.add(closing));
           }
-          e.collision(n);
-          n.collision(e);
+          e.collision(n, closing.copy().mult(-1.0));
+          n.collision(e, closing.copy());
         }
       }
     }

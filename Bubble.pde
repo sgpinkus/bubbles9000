@@ -14,7 +14,7 @@ class Bubble extends Entity
     popMatrix();
   }
   
-  void collision(Entity e) {
+  void collision(Entity e, PVector closing) {
     this.r -= 1.0;
     if(r < 4.0) {
       kill();

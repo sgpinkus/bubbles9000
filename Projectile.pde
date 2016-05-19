@@ -17,7 +17,7 @@ class Projectile extends Entity
     popMatrix();
   }
   
-  void collision(Entity e) {
+  void collision(Entity e, PVector closing) {
     if(e instanceof Bubble && e.health < 2) {
       myShip.addScore(100);
     }

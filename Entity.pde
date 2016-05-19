@@ -30,7 +30,7 @@ abstract class Entity extends Observable
    * Handle collision with another object, `other`.
    * Updating velocity is handled at a higher level. Don't do that here.
    */
-  public abstract void collision(Entity e); 
+  public abstract void collision(Entity e, PVector closing); 
   
   /**
    * Update self. Called everytick before draw.

@@ -51,8 +51,14 @@ class Ship extends Entity
     popMatrix();
   }
   
-  void collision(Entity e) {
-    addHealth(-1);
+  /**
+   * Do collision. Collision hurt least to most from frontn to back 
+   */
+  void collision(Entity e, PVector closing) { 
+    float impact = closing.dot(heading.normalize()) + closing.mag();
+    impact = map(impact, 0, 2.0*closing.mag(), 3, 9);
+    println("Collision with closing " + closing.mag() + " Gives " + impact);
+    addHealth((int)-impact);
   }
   
   void addScore(int score) {
