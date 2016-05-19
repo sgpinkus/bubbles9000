@@ -137,10 +137,16 @@ class EntityWorld implements Observer, Iterable<Entity>
    */
   private void checkBounds(Entity e) {
     if(e.loc.x <= 0 || e.loc.x >= width) {
-       e.vel.x = -1*e.vel.x;
+       if(e.isMassive()) 
+         e.vel.x = -1*e.vel.x;
+       else
+         e.kill();
     }
     if(e.loc.y <= 0 || e.loc.y >= height) {
-       e.vel.y = -1*e.vel.y;
+      if(e.isMassive())
+        e.vel.y = -1*e.vel.y;
+      else
+        e.kill();
     }
   }
   
@@ -159,12 +165,11 @@ class EntityWorld implements Observer, Iterable<Entity>
         PVector projN = componentsN[0];
         PVector perpN = componentsN[1];
         // Determine the speed of n along the incident vector between e and n. Iff its -ve they are colliding.
-        float speedE = projE.dot(incident);
-        float speedN = projN.dot(incident);
-        if(speedE - speedN > 0) {
+        PVector closing = projE.copy().sub(projN);
+        if(closing.dot(incident) > 0) {
           System.out.format("Collision detected: %s, %s\n", projE, projN);
-          e.vel = perpE.add(projE.mult(-1.0));
-          n.vel = perpN.add(projN.mult(-1.0));
+          e.vel = perpE.add(projE.sub(closing));
+          n.vel = perpN.add(projN.add(closing));
           e.collision(n);
           n.collision(e);
         }
