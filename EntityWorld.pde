@@ -44,6 +44,7 @@ class EntityWorld implements Observer, Iterable<Entity>
     ArrayList<Entity> bucket = getBucket(key);
     bucket.add(e);
     e.id = ++maxId;
+    e.addObserver(this);
   }
   
   /**
@@ -56,6 +57,29 @@ class EntityWorld implements Observer, Iterable<Entity>
     entities.remove(e);
   }
   
+  public int size() {
+    return entities.size();
+  }
+  
+  /**
+   * Update all entities, taking care of bounds and indexes. 
+   */
+  public void update() {
+    List<Entity> _entities = new ArrayList<Entity>(entities.keySet());
+    for(int i = _entities.size()-1; i >= 0; i--) {
+      Entity e = _entities.get(i);
+      checkBounds(e);
+      collisions(e);
+      e.update();
+      if(!e.isLive()) {
+        remove(e);
+      }
+      else {
+        updateIndexes(e); // Must come after e.update().
+      }
+    }
+  }
+
   /**
    * Get the neighbourhood (9 bins) of e.
    */
@@ -109,20 +133,6 @@ class EntityWorld implements Observer, Iterable<Entity>
   }
   
   /**
-   * Update all entities, taking care of bounds and indexes. 
-   */
-  public void update() {
-    List<Entity> _entities = new ArrayList<Entity>(entities.keySet());
-    for(int i =0; i < _entities.size(); i++) {
-      Entity e = _entities.get(i);
-      checkBounds(e);
-      collisions(e);
-      e.update();
-      updateIndexes(e); // Must come after e.update().
-    }
-  }
-  
-  /**
    * Check if e out of bound, and *modify* trajectory if so.
    */
   private void checkBounds(Entity e) {
@@ -152,9 +162,11 @@ class EntityWorld implements Observer, Iterable<Entity>
         float speedE = projE.dot(incident);
         float speedN = projN.dot(incident);
         if(speedE - speedN > 0) {
-        System.out.format("Collision detected: %s, %s\n", projE, projN);
+          System.out.format("Collision detected: %s, %s\n", projE, projN);
           e.vel = perpE.add(projE.mult(-1.0));
           n.vel = perpN.add(projN.mult(-1.0));
+          e.collision(n);
+          n.collision(e);
         }
       }
     }
@@ -199,7 +211,8 @@ class EntityWorld implements Observer, Iterable<Entity>
    * Callback for Entity events.
    */
   public void update(Observable o, Object arg) {
+    println("NOTIFCATION!!");
     Entity target = (Entity)o;
-    entities.remove(target);
+    remove(target);
   }
 }

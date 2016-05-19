@@ -18,7 +18,7 @@ void setup() {
 void setupSystem() {
   world = new EntityWorld(width, height, 40);
   for(int i = 0; i < 20; i++) {
-    Entity e = new Entity(
+    Bubble e = new Bubble(
       new PVector(random(0,width-1), random(0,height)),
       PVector.random2D().mult(2.0),
       random(5,world.binSize/2.01)
@@ -28,7 +28,7 @@ void setupSystem() {
 }
 
 void draw() {
-  println("In draw()");
+  //println("In draw() " + world.size());
   background(255);
   fill(255);
   stroke(0, 0, 0);

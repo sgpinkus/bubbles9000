@@ -5,7 +5,7 @@
 void testGetHood() {
   world = new EntityWorld(width, height, 40);
   for(int i = 0; i < 100; i++) {
-    Entity e = new Entity(
+    Bubble e = new Bubble(
       new PVector(random(0,width-1), random(0,height)),
       PVector.random2D().mult(2.0),
       random(2,world.binSize/2.01)
