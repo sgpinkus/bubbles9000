@@ -17,6 +17,12 @@ void setup() {
 
 void setupSystem() {
   world = new EntityWorld(width, height, 40);
+  Ship s = new Ship(
+    new PVector(width/2, width/2),
+    new PVector(0,0),
+    world
+  );
+  world.add(s);  
   for(int i = 0; i < 20; i++) {
     Bubble e = new Bubble(
       new PVector(random(0,width-1), random(0,height)),
@@ -29,6 +35,7 @@ void setupSystem() {
 
 void draw() {
   //println("In draw() " + world.size());
+  colorMode(RGB, 255);
   background(255);
   fill(255);
   stroke(0, 0, 0);
