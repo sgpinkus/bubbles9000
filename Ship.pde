@@ -5,13 +5,12 @@ class Ship extends Entity
 {
   final float sterringIncrement = PI/16.0;
   final float dampening = 0.99;
-  /** Require a world to seed with projectiles. */
-  EntityWorld world;
-  /** Heading */
-  PVector heading = new PVector(0,1);
+  EntityWorld world; /** Require a world to seed with projectiles. */
+  PVector heading = new PVector(0,1); /** Heading */
+  int score = 0;
   /** View stuff */
   color myColour;
-  int score = 0;
+  boolean thrusting = false;
   
   public Ship(PVector loc, PVector vel, EntityWorld world) {
     super(loc, vel, 7.0);
@@ -42,11 +41,16 @@ class Ship extends Entity
   
   void draw() {
     pushMatrix();
-    translate(loc.x,loc.y);
     colorMode(RGB, 255);
+    translate(loc.x,loc.y);
+    rotate(-heading.heading());
+    if(thrusting) {
+      fill(#BBBB00);
+      ellipse(-r,0,8,8);
+      thrusting = false;
+    }
     fill(myColour);
     stroke(myColour);
-    rotate(-heading.heading());
     triangle(-r, -r, r*1.5, 0, -r, r);
     popMatrix();
   }
@@ -77,6 +81,7 @@ class Ship extends Entity
     PVector fixedHeading = heading.copy();
     fixedHeading.y = -1.0*fixedHeading.y;
     vel = vel.add(fixedHeading);
+    thrusting = true;
   }
   
   void fireProjectile() {
