@@ -194,7 +194,6 @@ class EntityWorld implements Observer, Iterable<Entity>
    * Draw the grid and delegate draw to all contained entities.
    */
   public void draw() {
-    update();
     for(Map.Entry<Integer,ArrayList<Entity>> bucket : grid.entrySet()) {
       int size = bucket.getValue().size();
       if(size > 0) {

@@ -1,16 +1,22 @@
 /**
  * Main of space bubbles game.
  */
+final int maxTurns = 600;
+final boolean stdioShip = true;
+final int totalShips = 3;
+final int additionalHeight = (totalShips+1)*20;
+final int _width = 720;
+final int _height = _width;
+final int binSize = 40;
 EntityWorld world;
-ArrayList<Ship> ships = new ArrayList<Ship>();
-StdioShipController player1; // Need a reference to a singular human player
+ArrayList<ShipController> shipControllers = new ArrayList<ShipController>();
+ArrayList<Ship> ships = new ArrayList<Ship>(); 
 StatusBar bar;
 int turn = 0;
-final int maxTurns = 600;
 
 void setup() {
   println("In setup()");
-  size(680, 620);
+  size(720, 800); // When processing is better size(_width, _height)
   frameRate(20);
   PFont font = createFont("Bitstream Vera Sans Mono Bold", 32);
   textFont(font, 14);
@@ -20,7 +26,7 @@ void setup() {
 }
 
 void setupSystem() {
-  world = new EntityWorld(width, height-20, 40);
+  world = new EntityWorld(_width, _height, binSize);
   // Init bubbles.  
   for(int i = 0; i < 20; i++) {
     Bubble e = new Bubble(
@@ -31,31 +37,76 @@ void setupSystem() {
     world.add(e);
   }
   // Init ships.
-  Ship s = new Ship(
-    new PVector(width/2, width/2),
-    new PVector(0,0),
-    world
-  );
-  player1 = new StdioShipController(s);
-  world.add(s);
-  ships.add(s);
-  bar = new StatusBar(world, ships);
+  PVector shipPosition = new PVector(width*0.3, width*0.3);
+  for(int i = 0; i < totalShips; i++) {
+    shipPosition.rotate((PI*2)*(i/totalShips));
+    Ship s = new Ship((new PVector(width/2, height/2)).add(shipPosition), new PVector(0,0), world);
+    ShipController controller;
+    world.add(s);
+    ships.add(s);
+    if(stdioShip && shipControllers.size() == 0) {
+      controller = new StdioShipController(s);
+    }
+    else {
+      controller = new RandomShipController(s);
+    }
+    shipControllers.add(controller);
+    controller.begin();
+  }
+  // Status bar.
+  bar = new StatusBar(world, ships, maxTurns);
 }
 
+/**
+ * Draw. Or rather tick the world.
+ */
 void draw() {
-  //println("In draw() " + world.size());
+  if(maxTurns == turn++) {
+    end();
+    return;
+  }
+  for(ShipController c : shipControllers) {
+    if(c.ship.isLive())
+      c.turn(turn);
+  }
+  world.update();
   colorMode(RGB, 255);
   background(255);
   fill(255);
   stroke(0, 0, 0);
   strokeWeight(1.2);
   world.draw();
-  bar.draw();
+  bar.draw(turn); 
 }
 
 /**
- * I know no otherway to hook the event.
+ * Finish up.
+ * Display game over and tell ship controllers game is over so they can do things like write stats.
+ */
+void end() {
+  for(ShipController c : shipControllers) {
+    c.end();
+  }
+  drawGameOver();
+  noLoop();
+}
+
+void drawGameOver() {
+  textAlign(CENTER);
+  rectMode(CENTER);  // Set rectMode to CENTER
+  fill(#FFFFFF);
+  rect(width/2, height/2, 150, 50);
+  fill(#000000);
+  text("Game Over", width/2, height/2);
+}
+
+
+/**
+ * Hack. I know no other way to hook these events..
  */
 void keyPressed() {
-  player1.keyPressed();
+  if(stdioShip) {
+    StdioShipController ioShip =(StdioShipController)shipControllers.get(0);
+    ioShip.keyPressed();
+  }
 }

@@ -1,13 +1,49 @@
 /**
- * Controls a ship by listenign to mysterious key press events.
- * Suprisingly effective.
+ * Controls a ship by listening to mysterious key press events. Suprisingly effective.
+ * Processing queues up all events and send them to you after (why after...) each draw().
+ * So we latchkey presses and only send them through to our ship on turn.
  */
-class StdioShipController
+class StdioShipController extends ShipController
 {
-  Ship myShip;
+  boolean fire = false;
+  boolean left = false;
+  boolean right = false;
+  boolean thrust = false;
+  
   
   StdioShipController(Ship ship) {
-    myShip  = ship;
+    super(ship);
+  }
+  
+  /**
+   * @override.
+   */
+  void begin() {
+  }
+  
+  /**
+   * @override.
+   */
+  void end() {
+  }
+  
+  /**
+   * @override
+   */
+  void turn(int turn) {
+    if(fire) {
+      ship.fireProjectile();
+    }
+    if(left) {
+      ship.steerLeft();
+    }
+    else if(right) {
+      ship.steerRight();
+    }
+    else if(thrust) {
+      ship.applyThrust();
+    }
+    fire = left = right = thrust = false;
   }
   
   /** 
@@ -15,16 +51,19 @@ class StdioShipController
    */
   void keyPressed() {
     if(key == ' ') {
-      myShip.fireProjectile();
+      fire = true;
     }
     if(keyCode == LEFT) {
-      myShip.steerLeft();
+      left = true;
+      right = thrust = false;
     }
     if(keyCode == RIGHT) {
-      myShip.steerRight();
+      right = true;
+      left = thrust = false;
     }
     if(keyCode == UP) {
-      myShip.applyThrust();
+      thrust = true;
+      left = right = false;
     }
   }
 }
