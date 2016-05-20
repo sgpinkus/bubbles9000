@@ -33,10 +33,10 @@ class RandomShipController extends ShipController
     if(direction <= 0.2) {
       ship.applyThrust();
     }
-    else if(direction <= 0.4) {
+    else if(direction <= 0.3) {
       ship.steerRight();
     }
-    if(direction <= 0.6) {
+    else if(direction <= 0.4) {
       ship.steerLeft();
     }
   }

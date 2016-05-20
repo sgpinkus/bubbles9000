@@ -17,11 +17,23 @@ class Projectile extends Entity
     popMatrix();
   }
   
+  /**
+   * Do collision. Note collision is called on both things involved, in a certain order according to collisionOrder(). 
+   * Thus assume e has already taken the hit from the projectile.
+   * @see EntityWorld.collisions()
+   */
   void collision(Entity e, PVector closing) {
-    if(e instanceof Bubble && e.health < 2) {
+    if(e instanceof Bubble && !e.isLive()) {
       myShip.addScore(100);
     }
+    else if(e instanceof Ship && !e.isLive()) {
+      myShip.addScore(500);
+    }
     kill();
+  }
+  
+  public int collisionOrder() {
+    return 100;
   }
   
   boolean isMassive() {

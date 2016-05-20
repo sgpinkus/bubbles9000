@@ -30,16 +30,16 @@ void setupSystem() {
   // Init bubbles.  
   for(int i = 0; i < 20; i++) {
     Bubble e = new Bubble(
-      new PVector(random(0,width-1), random(0,height-20)),
+      new PVector(random(0,_width-1), random(0,_height-1)),
       PVector.random2D().mult(2.0),
       random(10,world.binSize/2.01)
     );
     world.add(e);
   }
   // Init ships.
-  PVector shipPosition = new PVector(width*0.3, width*0.3);
+  PVector shipPosition = new PVector(width*0.3, 0);
   for(int i = 0; i < totalShips; i++) {
-    shipPosition.rotate((PI*2)*(i/totalShips));
+    shipPosition.rotate((PI*2.0)*(1.0/totalShips));
     Ship s = new Ship((new PVector(width/2, height/2)).add(shipPosition), new PVector(0,0), world);
     ShipController controller;
     world.add(s);

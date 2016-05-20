@@ -8,7 +8,6 @@ import java.util.*;
  */
 class EntityWorld implements Observer, Iterable<Entity>
 {
-  private int maxId = 0;
   public final int w;
   public final int h;
   public final int binSize;
@@ -43,7 +42,6 @@ class EntityWorld implements Observer, Iterable<Entity>
     entities.put(e, key);
     ArrayList<Entity> bucket = getBucket(key);
     bucket.add(e);
-    e.id = ++maxId;
     e.addObserver(this);
   }
   
@@ -172,8 +170,16 @@ class EntityWorld implements Observer, Iterable<Entity>
             e.vel = perpE.add(projE.sub(closing));
             n.vel = perpN.add(projN.add(closing));
           }
-          e.collision(n, closing.copy().mult(-1.0));
-          n.collision(e, closing.copy());
+          Entity first = e;
+          Entity second = n;
+          PVector firstClosing = closing.copy();
+          if(e.collisionOrder() > n.collisionOrder()) {
+            first = n;
+            second = e;
+            firstClosing.mult(-1.0);
+          }
+          first.collision(second, firstClosing.mult(-1.0));
+          second.collision(first, firstClosing.mult(-1.0));
         }
       }
     }

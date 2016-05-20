@@ -37,10 +37,10 @@ class StdioShipController extends ShipController
     if(left) {
       ship.steerLeft();
     }
-    else if(right) {
+    if(right) {
       ship.steerRight();
     }
-    else if(thrust) {
+    if(thrust) {
       ship.applyThrust();
     }
     fire = left = right = thrust = false;

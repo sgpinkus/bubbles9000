@@ -4,7 +4,7 @@
 class Ship extends Entity
 {
   final float sterringIncrement = PI/16.0;
-  final float dampening = 0.99;
+  final float dampening = 0.98;
   EntityWorld world; /** Require a world to seed with projectiles. */
   PVector heading = new PVector(0,1); /** Heading */
   int score = 0;
@@ -19,7 +19,8 @@ class Ship extends Entity
   }
   
   private void init() {
-    switch(id%6) {
+    println(id);
+    switch(id%4) {
       case 0: 
         myColour = #FF0000;
         break;
@@ -50,18 +51,19 @@ class Ship extends Entity
       thrusting = false;
     }
     fill(myColour);
-    stroke(myColour);
+    stroke(128);
     triangle(-r, -r, r*1.5, 0, -r, r);
     popMatrix();
   }
   
   /**
-   * Do collision. Collision hurt least to most from frontn to back 
+   * Do collision. Collision hurt least if your pointing at the thing you hit. Allows for ramming.
    */
-  void collision(Entity e, PVector closing) { 
-    float impact = closing.dot(heading.normalize()) + closing.mag();
-    impact = map(impact, 0, 2.0*closing.mag(), 3, 9);
-    println("Collision with closing " + closing.mag() + " Gives " + impact);
+  void collision(Entity e, PVector closing) {
+    float dot = closing.dot(heading.normalize()); // varies between +- closing.mag(). Max if parellel and same direction.
+    float impact = -1.0*dot + closing.mag();
+    impact = map(impact, 0, 2.0*closing.mag(), 2, 12);
+    //System.out.format("DotFactrp=%.2f, Impact=%.2f, ClosingMag=%.2f\n", dot/closing.mag(), impact, closing.mag());  
     addHealth((int)-impact);
   }
   

@@ -6,7 +6,7 @@ import java.util.*;
  */
 abstract class Entity extends Observable
 {
-  /** The center of this Entity */
+  /** The of this Entity */
   public PVector loc = new PVector();
   /** The current velocity */
   public PVector vel = new PVector();
@@ -21,16 +21,26 @@ abstract class Entity extends Observable
     this.loc = loc;
     this.vel = vel;
     this.r = r;
+    this.id = (new Random()).nextInt(Integer.MAX_VALUE/2-1)+1;
   }
   
-  /** Render the entity */
+  /** 
+   * Draw.
+   */
   public abstract void draw();
   
   /** 
    * Handle collision with another object, `other`.
    * Updating velocity is handled at a higher level. Don't do that here.
    */
-  public abstract void collision(Entity e, PVector closing); 
+  public abstract void collision(Entity e, PVector closing);
+  
+  /**
+   * @return an int indicating what order collision() should be called. Larger => latter.
+   */
+  public int collisionOrder() {
+    return 0;
+  }
   
   /**
    * Update self. Called everytick before draw.
