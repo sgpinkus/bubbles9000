@@ -5,6 +5,8 @@ EntityWorld world;
 ArrayList<Ship> ships = new ArrayList<Ship>();
 StdioShipController player1; // Need a reference to a singular human player
 StatusBar bar;
+int turn = 0;
+final int maxTurns = 600;
 
 void setup() {
   println("In setup()");
@@ -24,7 +26,7 @@ void setupSystem() {
     Bubble e = new Bubble(
       new PVector(random(0,width-1), random(0,height-20)),
       PVector.random2D().mult(2.0),
-      random(5,world.binSize/2.01)
+      random(10,world.binSize/2.01)
     );
     world.add(e);
   }

@@ -1,6 +1,10 @@
 class Bubble extends Entity
 {
-  float hue = random(30,70);
+  final float minRadius = 10.0;
+  float hue = random(50,100);
+  PImage bubbleImage = loadImage("bubble100x100.png");
+
+  
   public Bubble(PVector loc, PVector vel, float r) {
     super(loc, vel, r);
   }
@@ -8,15 +12,18 @@ class Bubble extends Entity
   void draw() {
     pushMatrix();
     colorMode(HSB, 100);
-    fill(hue, hue, hue, health);
-    stroke(hue, hue, hue);
+    imageMode(CENTER);
+    fill(hue, hue, hue, 20);
+    stroke(hue, hue, hue, 20);
+    strokeWeight(0);
+    image(bubbleImage, loc.x, loc.y, r*2, r*2);
     ellipse(loc.x, loc.y, r*2, r*2);
     popMatrix();
   }
   
   void collision(Entity e, PVector closing) {
-    this.r -= 1.0;
-    if(r < 4.0) {
+    this.r -= 2.0;
+    if(r < minRadius) {
       kill();
     }
   }
