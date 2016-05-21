@@ -13,6 +13,7 @@ class StdioShipController extends ShipController
   
   StdioShipController(Ship ship) {
     super(ship);
+    ship.myColour = #0000FF;
   }
   
   /**

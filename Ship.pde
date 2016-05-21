@@ -5,34 +5,16 @@ class Ship extends Entity
 {
   final float sterringIncrement = PI/16.0;
   final float dampening = 0.98;
-  EntityWorld world; /** Require a world to seed with projectiles. */
-  PVector heading = new PVector(0,1); /** Heading */
-  int score = 0;
+  private EntityWorld world; /** Require a world to seed with projectiles. */
+  private PVector heading = new PVector(0,1); /** Heading */
+  private int score = 0;
   /** View stuff */
-  color myColour;
+  color myColour = #888888;
   boolean thrusting = false;
   
   public Ship(PVector loc, PVector vel, EntityWorld world) {
     super(loc, vel, 7.0);
     this.world = world;
-    init(); 
-  }
-  
-  private void init() {
-    println(id);
-    switch(id%4) {
-      case 0: 
-        myColour = #FF0000;
-        break;
-      case 1:
-        myColour = #FFFF00;
-        break;
-      case 2:
-        myColour = #00FF00;
-        break;
-      default:
-        myColour = #00FFFF;
-    }
   }
   
   void update() {

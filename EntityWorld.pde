@@ -8,6 +8,7 @@ import java.util.*;
  */
 class EntityWorld implements Observer, Iterable<Entity>
 {
+  private int maxId = 0; 
   public final int w;
   public final int h;
   public final int binSize;
@@ -43,6 +44,7 @@ class EntityWorld implements Observer, Iterable<Entity>
     ArrayList<Entity> bucket = getBucket(key);
     bucket.add(e);
     e.addObserver(this);
+    e.id = ++maxId;
   }
   
   /**

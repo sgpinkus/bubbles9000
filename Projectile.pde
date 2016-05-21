@@ -28,6 +28,7 @@ class Projectile extends Entity
     }
     else if(e instanceof Ship && !e.isLive()) {
       myShip.addScore(500);
+      ((Ship)e).addScore(-500);
     }
     kill();
   }

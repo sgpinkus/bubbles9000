@@ -12,7 +12,7 @@ abstract class Entity extends Observable
   public PVector vel = new PVector();
   /** Everything is circular and has a bound radius. Make thing simple */
   float r;
-  /** Every object has a unique id. This helps to totaly order them */
+  /** Every object has a unique id. This helps to totally order them */
   int id;
   /** Health. */
   int health = 100;
@@ -74,6 +74,9 @@ abstract class Entity extends Observable
   
   public void addHealth(int fruit) {
     health = max(min(100, health+fruit), 0);
+    if(health == 0) {
+      kill();
+    }
   }
   
   public void kill() {

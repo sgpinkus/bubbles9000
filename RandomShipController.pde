@@ -7,6 +7,7 @@ class RandomShipController extends ShipController
 {
   RandomShipController(Ship ship) {
     super(ship);
+    ship.myColour = #FF0000;
   }
   
   /**
