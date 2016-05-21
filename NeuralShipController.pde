@@ -13,13 +13,14 @@ import perceptrons.*;
  */
 class NeuralShipController extends ShipController
 {
-  private EntityWorld world; /** Require a world to generate percept. */
-  PerceptronNetwork nn;
+  public final float threshold = 0.2;
+  protected EntityWorld world; /** Require a world to generate percept. */
+  protected PerceptronNetwork nn;
 
   NeuralShipController(Ship ship, EntityWorld world) {
     super(ship);
     this.world = world;
-    nn = new PerceptronNetwork(4,4);
+    nn = new PerceptronNetwork(4,4, new Perceptron.Sigmoid());
     ship.myColour = #FF0000;
   }
   
@@ -41,55 +42,18 @@ class NeuralShipController extends ShipController
    * @override
    */
   void turn(int turn) {
-    float[] outputs = nn.value(getPercept());
-    if(outputs[0] >= 0.5) {
+    float[] outputs = nn.value(ship.getPercept());
+    if(outputs[0] >= threshold) {
       ship.fireProjectile();      
     }
-    if(outputs[1] >= 0.5) {
+    if(outputs[1] >= threshold) {
       ship.steerLeft();
     }
-    if(outputs[2] >= 0.5) {
+    if(outputs[2] >= threshold) {
       ship.steerRight();
     }
-    if(outputs[3] >= 0.5) {
+    if(outputs[3] >= threshold) {
       ship.applyThrust();
     }
-  }
-  
-  /**
-   * Generate a percept based on our ships environment,
-   * Currently that percept is vector of length 4 described above.
-   * Order is <ship_dist, ship_angle, bubble_dist, bubble_angle>
-   * @todo Pretty inefficient search for nearest objects but is fine in current app..
-   */
-  float[] getPercept() {
-    float[] percept = {0.0, 0.0, 0.0, 0.0};
-    Bubble closestBubble = null;
-    Ship closestShip = null;
-    float minBubbleDistance = 10.0e5;
-    float minShipDistance = 10.0e5;
-    for(Entity e : world) {
-      if(e.equals(this)) {
-        continue;
-      }
-      float distanceTo = ship.loc.dist(e.loc);
-      if(e instanceof Bubble && distanceTo < minBubbleDistance) { 
-        closestBubble = (Bubble)e;
-        minBubbleDistance = distanceTo;
-      }
-      else if(e instanceof Ship && distanceTo < minShipDistance) {
-        closestShip = (Ship)e;
-        minShipDistance = distanceTo;
-      }  
-    }
-    if(closestShip != null) {
-      percept[0] = map(minShipDistance, 0, world.w, 1.0, 0.0);
-      percept[1] = constrain(map(_angleBetween(ship.heading, closestShip.loc.copy().sub(ship.loc)), -PI, PI, -1.0, 1.0), -PI+(PI/8), PI-(PI/8));  
-    }
-    if(closestBubble != null) {
-      percept[2] = map(minBubbleDistance, 0, world.w, 1.0, 0.0);
-      percept[3] = constrain(map(_angleBetween(ship.heading, closestBubble.loc.copy().sub(ship.loc)), -PI, PI, -1.0, 1.0), -PI+(PI/8), PI-(PI/8));
-    }
-    return percept;
   }
 }

@@ -88,4 +88,42 @@ class Ship extends Entity
     }
     world.add(missile);
   }
+  
+  /**
+   * Generate a percept based on our ships environment,
+   * Currently that percept is vector of length 4 described above.
+   * Order is <ship_dist, ship_angle, bubble_dist, bubble_angle>
+   * @todo Pretty inefficient search for nearest objects but is fine in current app..
+   * @input ship Not necessarily our ship.
+   */
+  float[] getPercept() {
+    float[] percept = {0.0, 0.0, 0.0, 0.0};
+    Bubble closestBubble = null;
+    Ship closestShip = null;
+    float minBubbleDistance = 10.0e5;
+    float minShipDistance = 10.0e5;
+    for(Entity e : world) {
+      if(e.id == id) {
+        continue;
+      }
+      float distanceTo = loc.dist(e.loc);
+      if(e instanceof Bubble && distanceTo < minBubbleDistance) { 
+        closestBubble = (Bubble)e;
+        minBubbleDistance = distanceTo;
+      }
+      else if(e instanceof Ship && distanceTo < minShipDistance) {
+        closestShip = (Ship)e;
+        minShipDistance = distanceTo;
+      }  
+    }
+    if(closestShip != null) {
+      percept[0] = map(minShipDistance, 0, world.w, 1.0, 0.0);
+      percept[1] = constrain(map(_angleBetween(heading, closestShip.loc.copy().sub(loc)), -PI, PI, -1.0, 1.0), -PI+(PI/8), PI-(PI/8));  
+    }
+    if(closestBubble != null) {
+      percept[2] = map(minBubbleDistance, 0, world.w, 1.0, 0.0);
+      percept[3] = constrain(map(_angleBetween(heading, closestBubble.loc.copy().sub(loc)), -PI, PI, -1.0, 1.0), -PI+(PI/8), PI-(PI/8));
+    }
+    return percept;
+  }
 }

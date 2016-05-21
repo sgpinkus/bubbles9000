@@ -17,6 +17,7 @@ class EntityWorld implements Observer, Iterable<Entity>
 
   HashMap<Entity,Integer> entities = new HashMap();
   HashMap<Integer,ArrayList<Entity>> grid = new HashMap<Integer,ArrayList<Entity>>();
+  HashMap<Class,Integer> types = new HashMap();
   
   public EntityWorld(int w, int h, int binSize) {
     if(binSize < 5 || binSize > w/2 || binSize > h/2) {
@@ -45,6 +46,7 @@ class EntityWorld implements Observer, Iterable<Entity>
     bucket.add(e);
     e.addObserver(this);
     e.id = ++maxId;
+    addClass(e.getClass());
   }
   
   /**
@@ -55,10 +57,32 @@ class EntityWorld implements Observer, Iterable<Entity>
     ArrayList<Entity> bucket = getBucket(key);
     bucket.remove(e);
     entities.remove(e);
+    removeClass(e.getClass());
   }
   
   public int size() {
     return entities.size();
+  }
+  
+  private void addClass(Class c) {
+    if(types.get(c) == null) {
+      types.put(c, 1);
+    }
+    else {
+      types.put(c, types.get(c)+1);
+    }
+  }
+  
+  private void removeClass(Class c) {
+    types.put(c, types.get(c)-1);
+  }
+  
+  public int countClass(Class c) {
+    int count = 0;
+    if(types.get(c) != null) {
+      count = types.get(c);
+    }
+    return count;
   }
   
   /**

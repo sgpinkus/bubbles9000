@@ -1,16 +1,19 @@
 /**
  * Main of space bubbles game.
  */
-final int maxTurns = 600;
+final int maxTurns = 6000;
 final boolean stdioShip = true;
-final int totalShips = 2;
-final int additionalHeight = (totalShips+1)*20;
+final boolean trainShip = true;
+final int numShips = 2;
+final int numBubbles = 20;
+final int additionalHeight = (numShips+1)*20;
 final int _width = 720;
 final int _height = _width;
 final int binSize = 40;
 EntityWorld world;
 ArrayList<ShipController> shipControllers = new ArrayList<ShipController>();
 ArrayList<Ship> ships = new ArrayList<Ship>(); 
+StdioShipController player = null; 
 StatusBar bar;
 int turn = 0;
 
@@ -28,7 +31,39 @@ void setup() {
 void setupSystem() {
   world = new EntityWorld(_width, _height, binSize);
   // Init bubbles.  
-  for(int i = 0; i < 20; i++) {
+  seedRandomBubbles(numBubbles);
+  // Init ships.
+  PVector shipPosition = new PVector(width*0.3, 0);
+  for(int i = 0; i < numShips; i++) {
+    shipPosition.rotate((PI*2.0)*(1.0/numShips));
+    Ship s = new Ship((new PVector(width/2, height/2)).add(shipPosition), new PVector(0,0), world);
+    world.add(s);
+    ships.add(s);
+    if(stdioShip && shipControllers.size() == 0) {
+      println("Add human player.");
+      player = new StdioShipController(s);
+      shipControllers.add(player);
+      player.begin();
+    }
+    else if(stdioShip && trainShip && shipControllers.size() == 1) {
+      println("Add computer player. Attach human trainer.");
+      ShipController controller = new OnlineNeuralShipController(s, world, player);
+      shipControllers.add(controller);
+      controller.begin();
+    }
+    else {
+      println("Add computer player.");
+      ShipController controller = new NeuralShipController(s, world);
+      shipControllers.add(controller);
+      controller.begin();
+    }
+  }
+  // Status bar.
+  bar = new StatusBar(world, ships, maxTurns);
+}
+
+void seedRandomBubbles(int n) {
+  for(int i = 0; i < n; i++) {
     Bubble e = new Bubble(
       new PVector(random(0,_width-1), random(0,_height-1)),
       PVector.random2D().mult(2.0),
@@ -36,29 +71,10 @@ void setupSystem() {
     );
     world.add(e);
   }
-  // Init ships.
-  PVector shipPosition = new PVector(width*0.3, 0);
-  for(int i = 0; i < totalShips; i++) {
-    shipPosition.rotate((PI*2.0)*(1.0/totalShips));
-    Ship s = new Ship((new PVector(width/2, height/2)).add(shipPosition), new PVector(0,0), world);
-    ShipController controller;
-    world.add(s);
-    ships.add(s);
-    if(stdioShip && shipControllers.size() == 0) {
-      controller = new StdioShipController(s);
-    }
-    else {
-      controller = new NeuralShipController(s, world);
-    }
-    shipControllers.add(controller);
-    controller.begin();
-  }
-  // Status bar.
-  bar = new StatusBar(world, ships, maxTurns);
 }
 
 /**
- * Draw. Or rather tick the world.
+ * Tick the world.
  */
 void draw() {
   if(maxTurns == turn++) {
@@ -68,6 +84,9 @@ void draw() {
   for(ShipController c : shipControllers) {
     if(c.ship.isLive())
       c.turn(turn);
+  }
+  if(world.countClass(Bubble.class) < numShips+numBubbles-10) {
+    seedRandomBubbles((int)random(1,10));
   }
   world.update();
   colorMode(RGB, 255);

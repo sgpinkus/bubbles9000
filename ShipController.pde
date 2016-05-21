@@ -4,7 +4,7 @@
  */
 abstract class ShipController
 {
-   Ship ship;
+   public Ship ship;
    
    ShipController(Ship ship) {
      this.ship = ship;

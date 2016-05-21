@@ -9,7 +9,7 @@ class StdioShipController extends ShipController
   boolean left = false;
   boolean right = false;
   boolean thrust = false;
-  
+  float[] lastTurn = new float[4];
   
   StdioShipController(Ship ship) {
     super(ship);
@@ -44,9 +44,17 @@ class StdioShipController extends ShipController
     if(thrust) {
       ship.applyThrust();
     }
+    lastTurn[0] = fire ? 1.0 : 0.0;
+    lastTurn[1] = left ? 1.0 : 0.0;
+    lastTurn[2] = right ? 1.0 : 0.0;
+    lastTurn[3] = thrust ? 1.0 : 0.0;
     fire = left = right = thrust = false;
   }
   
+  float[] getLastTurn() {
+    return lastTurn;
+  }  
+
   /** 
    * key press handler. Must be hooked up to key presses.
    */
