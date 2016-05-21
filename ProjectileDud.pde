@@ -1,8 +1,13 @@
-class Projectile extends Entity
+/**
+ * A dud projectile that hits but does no damage.
+ * Note class doesnt extend Projectile vice versa because of weird processing implementation contraints.
+ * @todo probably should be base class of projectile...
+ */
+class ProjectileDud extends Entity
 {
   Ship myShip;
-   
-  public Projectile(PVector loc, PVector vel, Ship ship) {
+
+  public ProjectileDud(PVector loc, PVector vel, Ship ship) {
     super(loc, vel, 5);
     myShip = ship;
   }
@@ -10,8 +15,8 @@ class Projectile extends Entity
   void draw() {
     pushMatrix();
     colorMode(RGB);
-    fill(0);
-    stroke(0);
+    fill(#888888);
+    stroke(#888888);
     ellipse(loc.x, loc.y, r/2, r/2);
     popMatrix();
   }
@@ -22,14 +27,6 @@ class Projectile extends Entity
    * @see EntityWorld.collisions()
    */
   void collision(Entity e, PVector closing) {
-    e.addHealth(-10);
-    if(e instanceof Bubble && !e.isLive()) {
-      myShip.addScore(100);
-    }
-    else if(e instanceof Ship && !e.isLive()) {
-      myShip.addScore(500);
-      ((Ship)e).addScore(-500);
-    }
     kill();
   }
   

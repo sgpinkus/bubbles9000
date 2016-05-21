@@ -8,6 +8,7 @@ class Ship extends Entity
   private EntityWorld world; /** Require a world to seed with projectiles. */
   private PVector heading = new PVector(0,1); /** Heading */
   private int score = 0;
+  private boolean shadowMode = false; /** In shadow mode thrust does not move and ship fires duds. */
   /** View stuff */
   color myColour = #888888;
   boolean thrusting = false;
@@ -55,6 +56,10 @@ class Ship extends Entity
     this.score += score;
   }
   
+  void setShadowMode(boolean setting) {
+    shadowMode = setting;
+  }
+  
   void steerLeft() {
     heading.rotate(PI/16.0);
   }
@@ -64,15 +69,23 @@ class Ship extends Entity
   }
   
   void applyThrust() {
-    PVector fixedHeading = heading.copy();
-    fixedHeading.y = -1.0*fixedHeading.y;
-    vel = vel.add(fixedHeading);
     thrusting = true;
+    if(!shadowMode) {
+      PVector fixedHeading = heading.copy();
+      fixedHeading.y = -1.0*fixedHeading.y;
+      vel = vel.add(fixedHeading);
+    }
   }
   
   void fireProjectile() {
     PVector fixedHeading = new PVector(heading.x, -heading.y);
-    Projectile missile = new Projectile(loc.copy(), fixedHeading.copy().mult(10), this);
+    Entity missile = null;
+    if(shadowMode) {
+      missile = new ProjectileDud(loc.copy(), fixedHeading.copy().mult(10), this);
+    }
+    else {
+      missile = new Projectile(loc.copy(), fixedHeading.copy().mult(10), this);
+    }
     world.add(missile);
-  }  
+  }
 }
