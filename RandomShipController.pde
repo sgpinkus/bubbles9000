@@ -29,14 +29,14 @@ class RandomShipController extends ShipController
     if(fire > 0.8) {
       ship.fireProjectile();
     }
-    if(direction <= 0.2) {
-      ship.applyThrust();
+    if(direction <= 0.1) {
+      ship.steerLeft();
     }
-    else if(direction <= 0.3) {
+    else if(direction <= 0.2) {
       ship.steerRight();
     }
     else if(direction <= 0.4) {
-      ship.steerLeft();
+      ship.applyThrust();
     }
   }
 }

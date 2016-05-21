@@ -3,7 +3,7 @@
  */
 final int maxTurns = 600;
 final boolean stdioShip = true;
-final int totalShips = 3;
+final int totalShips = 2;
 final int additionalHeight = (totalShips+1)*20;
 final int _width = 720;
 final int _height = _width;
@@ -48,7 +48,7 @@ void setupSystem() {
       controller = new StdioShipController(s);
     }
     else {
-      controller = new RandomShipController(s);
+      controller = new NeuralShipController(s, world);
     }
     shipControllers.add(controller);
     controller.begin();
