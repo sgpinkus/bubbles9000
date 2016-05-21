@@ -1,7 +1,5 @@
 /**
- * Controls a ship by listening to mysterious key press events. Suprisingly effective.
- * Processing queues up all events and send them to you after (why after...) each draw().
- * So we latchkey presses and only send them through to our ship on turn.
+ * Controls a ship randomly.
  */
 class RandomShipController extends ShipController
 {

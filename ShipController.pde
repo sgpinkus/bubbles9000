@@ -1,6 +1,6 @@
 /**
- * A ship controller. The game init one of these for every ship.
- * Then asks the controller to move it's ship each turn before updating the world.
+ * A ship controller. The game should init one of these for every ship.
+ * The game should ask the controller to move it's ship each turn before updating the world.
  */
 abstract class ShipController
 {

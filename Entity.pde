@@ -6,16 +6,16 @@ import java.util.*;
  */
 abstract class Entity extends Observable
 {
+  /** Every object has a unique id. This helps to totally order them */
+  public int id;
   /** The of this Entity */
   public PVector loc = new PVector();
   /** The current velocity */
   public PVector vel = new PVector();
   /** Everything is circular and has a bound radius. Make thing simple */
-  float r;
-  /** Every object has a unique id. This helps to totally order them */
-  int id;
+  protected float r;
   /** Health. */
-  int health = 100;
+  protected int health = 100;
   
   public Entity(PVector loc, PVector vel, float r) {
     this.loc = loc;

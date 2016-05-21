@@ -42,11 +42,13 @@ class Ship extends Entity
    * Do collision. Collision hurt least if your pointing at the thing you hit. Allows for ramming.
    */
   void collision(Entity e, PVector closing) {
-    float dot = closing.dot(heading.normalize()); // varies between +- closing.mag(). Max if parellel and same direction.
-    float impact = -1.0*dot + closing.mag();
-    impact = map(impact, 0, 2.0*closing.mag(), 2, 12);
-    //System.out.format("DotFactrp=%.2f, Impact=%.2f, ClosingMag=%.2f\n", dot/closing.mag(), impact, closing.mag());  
-    addHealth((int)-impact);
+    if(e.isMassive()) {
+      float dot = closing.dot(heading.normalize()); // varies between +- closing.mag(). Max if parellel and same direction.
+      float impact = -1.0*dot + closing.mag();
+      impact = map(impact, 0, 2.0*closing.mag(), 2, 12);
+      //System.out.format("DotFactrp=%.2f, Impact=%.2f, ClosingMag=%.2f\n", dot/closing.mag(), impact, closing.mag());  
+      addHealth((int)-impact);
+    }
   }
   
   void addScore(int score) {
