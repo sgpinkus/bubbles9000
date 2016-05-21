@@ -48,12 +48,19 @@ class StdioShipController extends ShipController
     lastTurn[1] = left ? 1.0 : 0.0;
     lastTurn[2] = right ? 1.0 : 0.0;
     lastTurn[3] = thrust ? 1.0 : 0.0;
+    if(turn%10==0)
+      printPercept();
     fire = left = right = thrust = false;
   }
   
   float[] getLastTurn() {
     return lastTurn;
-  }  
+  }
+  
+  private void printPercept() {
+    float[] in = ship.getPercept();
+    System.out.format("[%.2f,%.2f,%.2f,%.2f], [%.2f,%.2f,%.2f,%.2f]\n", in[0], in[1], in[2], in[3], lastTurn[0], lastTurn[1], lastTurn[2], lastTurn[3]); 
+  }
 
   /** 
    * key press handler. Must be hooked up to key presses.

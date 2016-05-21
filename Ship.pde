@@ -4,6 +4,7 @@
 class Ship extends Entity
 {
   final float sterringIncrement = PI/16.0;
+  final float viewField = PI-(PI/8); /** Actually 1/2 the FoV */
   final float dampening = 0.98;
   private EntityWorld world; /** Require a world to seed with projectiles. */
   private PVector heading = new PVector(0,1); /** Heading */
@@ -29,7 +30,7 @@ class Ship extends Entity
     translate(loc.x,loc.y);
     rotate(-heading.heading());
     if(thrusting) {
-      fill(#BBBB00);
+      fill(#DFB700);
       ellipse(-r,0,8,8);
       thrusting = false;
     }
@@ -46,7 +47,7 @@ class Ship extends Entity
     if(e.isMassive()) {
       float dot = closing.dot(heading.normalize()); // varies between +- closing.mag(). Max if parellel and same direction.
       float impact = -1.0*dot + closing.mag();
-      impact = map(impact, 0, 2.0*closing.mag(), 2, 12);
+      impact = map(impact, 0, 2.0*closing.mag(), 1, 10);
       //System.out.format("DotFactrp=%.2f, Impact=%.2f, ClosingMag=%.2f\n", dot/closing.mag(), impact, closing.mag());  
       addHealth((int)-impact);
     }
@@ -61,17 +62,18 @@ class Ship extends Entity
   }
   
   void steerLeft() {
-    heading.rotate(PI/16.0);
+    heading.rotate(sterringIncrement);
   }
   
   void steerRight() {
-    heading.rotate(-PI/16.0);
+    heading.rotate(-sterringIncrement);
   }
   
   void applyThrust() {
     thrusting = true;
     if(!shadowMode) {
-      PVector fixedHeading = heading.copy();
+      float velMag = vel.mag();
+      PVector fixedHeading = heading.copy().mult(1.0/(1.0+velMag));
       fixedHeading.y = -1.0*fixedHeading.y;
       vel = vel.add(fixedHeading);
     }
@@ -117,12 +119,16 @@ class Ship extends Entity
       }  
     }
     if(closestShip != null) {
-      percept[0] = map(minShipDistance, 0, world.w, 1.0, 0.0);
-      percept[1] = constrain(map(_angleBetween(heading, closestShip.loc.copy().sub(loc)), -PI, PI, -1.0, 1.0), -PI+(PI/8), PI-(PI/8));  
+      PVector to = closestShip.loc.copy().sub(loc);
+      to.y = to.y*-1.0;
+      percept[0] = map(minShipDistance, 0, world.w/2.0, 1.0, 0.0);
+      percept[1] = map(constrain(_angleBetween(heading,to), -viewField, viewField), -viewField, viewField, -1.0, 1.0);
     }
     if(closestBubble != null) {
-      percept[2] = map(minBubbleDistance, 0, world.w, 1.0, 0.0);
-      percept[3] = constrain(map(_angleBetween(heading, closestBubble.loc.copy().sub(loc)), -PI, PI, -1.0, 1.0), -PI+(PI/8), PI-(PI/8));
+      PVector to = closestBubble.loc.copy().sub(loc);
+      to.y = to.y*-1.0;
+      percept[2] = map(minBubbleDistance, 0, world.w/2.0, 1.0, 0.0);
+      percept[3] = map(constrain(_angleBetween(heading,to),-viewField, viewField), -viewField, viewField, -1.0, 1.0);
     }
     return percept;
   }

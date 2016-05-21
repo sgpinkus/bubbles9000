@@ -13,14 +13,14 @@ import perceptrons.*;
  */
 class NeuralShipController extends ShipController
 {
-  public final float threshold = 0.2;
+  public final float threshold = 0.25;
   protected EntityWorld world; /** Require a world to generate percept. */
   protected PerceptronNetwork nn;
 
   NeuralShipController(Ship ship, EntityWorld world) {
     super(ship);
     this.world = world;
-    nn = new PerceptronNetwork(4,4, new Perceptron.Sigmoid());
+    nn = new PerceptronNetwork(4,4, new Perceptron.Sign());
     ship.myColour = #FF0000;
   }
   

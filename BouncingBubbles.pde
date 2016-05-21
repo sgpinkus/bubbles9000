@@ -77,7 +77,7 @@ void seedRandomBubbles(int n) {
  * Tick the world.
  */
 void draw() {
-  if(maxTurns == turn++) {
+  if(maxTurns == turn++ || world.countClass(Ship.class) == 0) {
     end();
     return;
   }

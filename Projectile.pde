@@ -22,7 +22,7 @@ class Projectile extends Entity
    * @see EntityWorld.collisions()
    */
   void collision(Entity e, PVector closing) {
-    e.addHealth(-10);
+    e.addHealth(-8);
     if(e instanceof Bubble && !e.isLive()) {
       myShip.addScore(100);
     }

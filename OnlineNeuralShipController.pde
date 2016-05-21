@@ -19,13 +19,9 @@ class OnlineNeuralShipController extends NeuralShipController
     if(turn%2 == 0 && trainer.ship.isLive()) {
       float[] percept = trainer.ship.getPercept();
       float[] output = trainer.getLastTurn();
-      //printTraining(percept, output);
+      //trainer.printPercept(percept, output);
       nn.train(percept, output);
     }
     super.turn(turn);
-  }
-  
-  private void printTraining(float[] in, float[] out) {
-    System.out.format("[%.2f,%.2f,%.2f,%.2f], [%.2f,%.2f,%.2f,%.2f]\n", in[0], in[1], in[2], in[3], out[0], out[1], out[2], out[3]); 
   }
 }
