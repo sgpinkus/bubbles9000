@@ -2,14 +2,20 @@
  * Main of Space Bubbles 9000 game.
  */
 final int maxTurns = 300;
-final boolean stdioShip = true; /** Add a human controlled ship */
-final boolean trainShip = true; /** Add a online trained ship */
-final int numShips = 6; /** Total number of ships including above ships */
+/** These ints are type identifiers to ship types. @todo put in classes .. */
+final int stdioShip = 0;
+final int trainedShip = 1;
+final int neuralShip = 2;
+final int evoNeuralShip = 3;
+/** Arrangement of ships. Note you can't have trainedShip without stdioShio  */
+//final int[] shipConfig = {stdioShip, trainedShip, neuralShip, evoNeuralShip, evoNeuralShip, evoNeuralShip};
+final int[] shipConfig = {neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
 final int numBubbles = 20; /** Starting number of bubble */
-final int additionalHeight = (numShips+1)*20;
+final int additionalHeight = (shipConfig.length+1)*20;
 final int _width = 720;
 final int _height = _width;
 final int binSize = 40;
+final File neuralConfigFile = new File("/tmp/neuron-config.dat"); /** This file holds a set of presumably trained neuron weights. */
 final File evoConfigFile = new File("/tmp/config-pool.json"); /** Input file used by EvolutionaryNeuralShipController */
 final File evoResultFile = new File("/tmp/result-pool.json"); /** Output file used by EvolutionaryNeuralShipController */
 EntityWorld world;
@@ -34,28 +40,41 @@ void setupSystem() {
   seedRandomBubbles(numBubbles);
   // Init ships.
   PVector shipPosition = new PVector(width*0.3, 0);
-  for(int i = 0; i < numShips; i++) {
-    shipPosition.rotate((PI*2.0)*(1.0/numShips));
+  for(int i = 0; i < shipConfig.length; i++) {
+    int shipType = shipConfig[i];
+    shipPosition.rotate((PI*2.0)*(1.0/shipConfig.length));
     Ship s = new Ship((new PVector(width/2, height/2)).add(shipPosition), new PVector(0,0), world);
     world.add(s);
     ships.add(s);
-    if(stdioShip && shipControllers.size() == 0) {
-      println("Add human player.");
-      player = new StdioShipController(s);
-      shipControllers.add(player);
-      player.begin();
-    }
-    else if(stdioShip && trainShip && shipControllers.size() == 1) {
-      println("Add computer player. Attach human trainer.");
-      ShipController controller = new OnlineNeuralShipController(s, world, player, true);
-      shipControllers.add(controller);
-      controller.begin();
-    }
-    else {
-      println("Add computer player.");
-      ShipController controller = new EvolutionaryNeuralShipController(s, world, evoConfigFile, evoResultFile);
-      shipControllers.add(controller);
-      controller.begin();
+    switch(shipType) {
+      case stdioShip: { 
+        println("Add human player.");
+        player = new StdioShipController(s);
+        shipControllers.add(player);
+        player.begin();
+        break;
+      }
+      case trainedShip: {
+        println("Add computer player. Attach human trainer.");
+        ShipController controller = new OnlineNeuralShipController(s, world, player, true);
+        shipControllers.add(controller);
+        controller.begin();
+        break;
+      }
+      case neuralShip: {
+        println("Add computer player.");
+        ShipController controller = new NeuralShipController(s, world);
+        shipControllers.add(controller);
+        controller.begin();
+        break;
+      }
+      case evoNeuralShip: {
+        println("Add computer player.");
+        ShipController controller = new EvolutionaryNeuralShipController(s, world, evoConfigFile, evoResultFile);
+        shipControllers.add(controller);
+        controller.begin();
+        break;
+      }
     }
   }
   // Status bar.
@@ -85,7 +104,7 @@ void draw() {
     if(c.ship.isLive())
       c.turn(turn);
   }
-  if(world.countClass(Bubble.class) < numShips+numBubbles-10) {
+  if(world.countClass(Bubble.class) < shipConfig.length+numBubbles-10) {
     seedRandomBubbles((int)random(1,10));
   }
   world.update();
@@ -126,7 +145,7 @@ void drawGameOver() {
  * Send events to controller. Hack. I know no other way to hook these events..
  */
 void keyPressed() {
-  if(stdioShip) {
+  if(player != null) {
     StdioShipController ioShip =(StdioShipController)shipControllers.get(0);
     ioShip.keyPressed();
   }
