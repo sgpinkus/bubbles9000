@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "definitions": {
+    "config" : {
+      "type": "object",
+      "properties": {
+        "config": {"type": "array"},
+        "configId": {"type": "integer"},
+        "score": {"type": "number" },
+        "runs": {"type": "integer" }
+      },
+      "required": ["config", "configId"]
+    }
+  },
+  "properties": {
+    "configs": {"type": "array"},
+    "index": {"type": "integer"}
+  },
+  "required": ["configs", "index"]
+}
