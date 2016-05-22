@@ -1,15 +1,17 @@
 /**
- * Main of space bubbles game.
+ * Main of Space Bubbles 9000 game.
  */
 final int maxTurns = 300;
-final boolean stdioShip = true;
-final boolean trainShip = true;
-final int numShips = 3;
-final int numBubbles = 20;
+final boolean stdioShip = true; /** Add a human controlled ship */
+final boolean trainShip = true; /** Add a online trained ship */
+final int numShips = 6; /** Total number of ships including above ships */
+final int numBubbles = 20; /** Starting number of bubble */
 final int additionalHeight = (numShips+1)*20;
 final int _width = 720;
 final int _height = _width;
 final int binSize = 40;
+final File evoConfigFile = new File("/tmp/config-pool.json"); /** Input file used by EvolutionaryNeuralShipController */
+final File evoResultFile = new File("/tmp/result-pool.json"); /** Output file used by EvolutionaryNeuralShipController */
 EntityWorld world;
 ArrayList<ShipController> shipControllers = new ArrayList<ShipController>();
 ArrayList<Ship> ships = new ArrayList<Ship>(); 
@@ -19,13 +21,11 @@ int turn = 0;
 
 void setup() {
   println("In setup()");
-  size(720, 800); // When processing is better size(_width, _height)
+  size(720, 800); // When processing is better = size(_width, _height)
   frameRate(20);
   PFont font = createFont("Bitstream Vera Sans Mono Bold", 32);
   textFont(font, 14);
-  //noLoop();
   setupSystem();
-  //testGetHood();
 }
 
 void setupSystem() {
@@ -53,7 +53,7 @@ void setupSystem() {
     }
     else {
       println("Add computer player.");
-      ShipController controller = new EvolutionaryNeuralShipController(s, world);
+      ShipController controller = new EvolutionaryNeuralShipController(s, world, evoConfigFile, evoResultFile);
       shipControllers.add(controller);
       controller.begin();
     }
@@ -110,6 +110,9 @@ void end() {
   noLoop();
 }
 
+/**
+ * Draw "Game Over".
+ */
 void drawGameOver() {
   textAlign(CENTER);
   rectMode(CENTER);  // Set rectMode to CENTER
@@ -119,9 +122,8 @@ void drawGameOver() {
   text("Game Over", width/2, height/2);
 }
 
-
 /**
- * Hack. I know no other way to hook these events..
+ * Send events to controller. Hack. I know no other way to hook these events..
  */
 void keyPressed() {
   if(stdioShip) {

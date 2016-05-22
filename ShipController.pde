@@ -222,8 +222,8 @@ class OnlineNeuralShipController extends NeuralShipController
  */
 class EvolutionaryNeuralShipController extends NeuralShipController
 {
-  private final File configFile = new File("config-pool.json");
-  private final File resultFile = new File("result-pool.json");
+  private File configFile;
+  private File resultFile;
   private int configId = 0;
   float[] config;
   
@@ -232,8 +232,10 @@ class EvolutionaryNeuralShipController extends NeuralShipController
    * In doing so tell that persistent storage that we have read one.
    * Require exclusive lock on persistent list to R/W.
    */
-  EvolutionaryNeuralShipController(Ship ship, EntityWorld world) {
+  EvolutionaryNeuralShipController(Ship ship, EntityWorld world, File configFile, File resultsFile) {
     super(ship, world);
+    this.configFile = configFile;
+    this.resultFile = resultsFile;
     loadConfig();
     nn.setWeights(config);
     ship.myColour = #FF8800;
