@@ -10,6 +10,7 @@ class Ship extends Entity
   private PVector heading = new PVector(0,1); /** Heading */
   private int score = 0;
   private boolean shadowMode = false; /** In shadow mode thrust does not move and ship fires duds. */
+  private int shootCounter = 0;
   /** View stuff */
   color myColour = #888888;
   boolean thrusting = false;
@@ -47,7 +48,7 @@ class Ship extends Entity
     if(e.isMassive()) {
       float dot = closing.dot(heading.normalize()); // varies between +- closing.mag(). Max if parellel and same direction.
       float impact = -1.0*dot + closing.mag();
-      impact = map(impact, 0, 2.0*closing.mag(), 1, 10);
+      impact = map(impact, 0, 2.0*closing.mag(), 1, 8);
       //System.out.format("DotFactrp=%.2f, Impact=%.2f, ClosingMag=%.2f\n", dot/closing.mag(), impact, closing.mag());  
       addHealth((int)-impact);
     }
@@ -55,6 +56,11 @@ class Ship extends Entity
   
   void addScore(int score) {
     this.score += score;
+  }
+  
+  public void kill() {
+    super.kill();
+    score = 0;
   }
   
   void setShadowMode(boolean setting) {
@@ -79,16 +85,18 @@ class Ship extends Entity
     }
   }
   
-  void fireProjectile() {
-    PVector fixedHeading = new PVector(heading.x, -heading.y);
-    Entity missile = null;
-    if(shadowMode) {
-      missile = new ProjectileDud(loc.copy(), fixedHeading.copy().mult(10), this);
+  void fireProjectile()  {
+    if(shootCounter++%2 ==0) {
+      PVector fixedHeading = new PVector(heading.x, -heading.y);
+      Entity missile = null;
+      if(shadowMode) {
+        missile = new ProjectileDud(loc.copy(), fixedHeading.copy().mult(10), this);
+      }
+      else {
+        missile = new Projectile(loc.copy(), fixedHeading.copy().mult(10), this);
+      }
+      world.add(missile);
     }
-    else {
-      missile = new Projectile(loc.copy(), fixedHeading.copy().mult(10), this);
-    }
-    world.add(missile);
   }
   
   /**

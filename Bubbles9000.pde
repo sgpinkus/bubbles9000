@@ -1,10 +1,10 @@
 /**
  * Main of space bubbles game.
  */
-final int maxTurns = 6000;
+final int maxTurns = 300;
 final boolean stdioShip = true;
 final boolean trainShip = true;
-final int numShips = 2;
+final int numShips = 3;
 final int numBubbles = 20;
 final int additionalHeight = (numShips+1)*20;
 final int _width = 720;
@@ -53,7 +53,7 @@ void setupSystem() {
     }
     else {
       println("Add computer player.");
-      ShipController controller = new NeuralShipController(s, world);
+      ShipController controller = new EvolutionaryNeuralShipController(s, world);
       shipControllers.add(controller);
       controller.begin();
     }
