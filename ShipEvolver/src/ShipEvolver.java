@@ -29,7 +29,7 @@ public class ShipEvolver
 	{
 		this.inFile = resultFile;
 		this.outFile = new File(resultFile.getParent() + outFileName);
-		System.out.format("Results from %s\nWriting to %s\n", resultFile.getAbsolutePath(), outFile.getAbsolutePath());
+		System.err.format("Results from %s\nWriting to %s\n", resultFile.getAbsolutePath(), outFile.getAbsolutePath());
 		Evolver evo = new Evolver();
 		ArrayList<Tuple<Float,float[]>> population = readPopulation();
 		ArrayList<Tuple<Float,float[]>> generation = evo.generate(population);
@@ -82,19 +82,19 @@ public class ShipEvolver
 		}
 		obj.put("configs", configs);
 		obj.put("index", 0);
-		System.out.println("Writing " + obj.toString());
-		Files.write(Paths.get("/dev/tty"), obj.toString().getBytes());
+		System.err.println("Writing " + obj.toString());
+		Files.write(Paths.get("/dev/stdout"), obj.toString().getBytes());
 	}
 
 	public static void main(String[] args) throws IOException
 	{
 		if(args.length != 1) {
-			System.out.format("Usage: ShipEvolver <results-file>\n");
+			System.err.format("Usage: ShipEvolver <results-file>\n");
 			System.exit(1);
 		}
 		File file = new File(args[0]);
 		if(!file.exists()) {
-			System.out.println("Require a results file in '" + args[1] + "'. Existing");
+			System.err.println("Require a results file in '" + args[1] + "'. Existing");
 			System.exit(1);
 		}
 		new ShipEvolver(file);

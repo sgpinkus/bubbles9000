@@ -21,7 +21,7 @@ int turn = 0;
 
 void setup() {
   println("In setup()");
-  size(720, 800); // When processing is better = size(_width, _height)
+  size(720, 860); // When processing is better = size(_width, _height+additionalHeight)
   frameRate(20);
   PFont font = createFont("Bitstream Vera Sans Mono Bold", 32);
   textFont(font, 14);
@@ -47,7 +47,7 @@ void setupSystem() {
     }
     else if(stdioShip && trainShip && shipControllers.size() == 1) {
       println("Add computer player. Attach human trainer.");
-      ShipController controller = new OnlineNeuralShipController(s, world, player);
+      ShipController controller = new OnlineNeuralShipController(s, world, player, true);
       shipControllers.add(controller);
       controller.begin();
     }

@@ -166,6 +166,13 @@ class NeuralShipController extends ShipController
   }
   
   /**
+   * Configure neural network.
+   */
+  void setWeights(float[] weights) {
+    nn.setWeights(weights);
+  }
+  
+  /**
    * Get outputs from NN and apply them to controls.
    * Order must match the training data order. Should be: <fire, left, right, thrust>
    * @override
@@ -193,12 +200,29 @@ class NeuralShipController extends ShipController
  */
 class OnlineNeuralShipController extends NeuralShipController
 {
+  public final File configFile = new File("OnlineNeuralShipControllerConfig.dat");
   protected StdioShipController trainer;
+  public boolean persistent = true;
   
-  OnlineNeuralShipController(Ship ship, EntityWorld world, StdioShipController trainer) {
+  OnlineNeuralShipController(Ship ship, EntityWorld world, StdioShipController trainer, boolean persistent) {
     super(ship, world);
     this.trainer = trainer;
+    this.persistent = persistent;
     ship.myColour = #FFFF00;
+    float[] config = loadConfig();
+    if(config != null) {
+      println("Found config for OnlineNeuralShipController. Assigning.");
+      nn.setWeights(config);
+    }
+    else {
+      println("No history for OnlineNeuralShipController. Random assignment.");
+    }
+  }
+  
+  void end() {
+    if(persistent) {
+      saveConfig(configFile, nn.getWeights());
+    }
   }
   
   /**
@@ -213,6 +237,34 @@ class OnlineNeuralShipController extends NeuralShipController
       nn.train(percept, output);
     }
     super.turn(turn);
+  }
+  
+  /**
+   * Attempt to load. If fail don't throw just give msg.
+   */
+  float[] loadConfig() {
+    float[] config = null;
+    try {
+      ObjectInputStream in = new ObjectInputStream(new FileInputStream(configFile));
+      config = (float[])in.readObject();
+    }
+    catch(Exception e) {
+    }
+    return config;
+  }
+  
+  /**
+   * Attempt to save configuration.
+   */
+  void saveConfig(File file, Object obj) {
+    try {
+      ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+      out.writeObject(obj);
+      out.close();
+    }
+    catch(Exception e) {
+      throw new RuntimeException(e.getMessage());
+    }
   }
 }
 
