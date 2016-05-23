@@ -4,9 +4,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-
 import org.json.*;
-
 import evolver.*;
 
 
@@ -62,7 +60,7 @@ public class ShipEvolver
 	}
 	
 	/**
-	 * 
+	 * Write. Evolver to JSON.
 	 * @param generation
 	 */
 	private void writeGeneration(ArrayList<Tuple<Float,float[]>> generation) throws IOException
@@ -72,7 +70,10 @@ public class ShipEvolver
 		// Make array of config objects.
 		for(int i = 0; i < generation.size(); i++) {
 			Tuple<Float,float[]> result = generation.get(i);
-			JSONArray resultJson = new JSONArray(Arrays.asList(result.second));
+			JSONArray resultJson = new JSONArray();
+			for(int j = 0; j < result.second.length; j++) {
+				resultJson.put(j,result.second[j]);
+			}
 			JSONObject item = new JSONObject();
 			item.put("config", resultJson);
 			item.put("configId", i);
