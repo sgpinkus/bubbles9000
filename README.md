@@ -58,3 +58,5 @@ I just used a perceptron network with 4 inputs and 4 outputs.
       Scripts used to evolve neuron configurations offline.
   * README.md
       This file.
+  * pres.mp4
+      Video presentation.
