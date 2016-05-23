@@ -201,7 +201,7 @@ class NeuralShipController extends ShipController
  */
 class OnlineNeuralShipController extends NeuralShipController
 {
-  public final File configFile = new File("OnlineNeuralShipControllerConfig.dat");
+  public final File configFile = new File("OnlineNeuralShipControllerConfig.json");
   protected StdioShipController trainer;
   public boolean persistent = true;
   
@@ -222,7 +222,7 @@ class OnlineNeuralShipController extends NeuralShipController
   
   void end() {
     if(persistent) {
-      saveConfig(configFile, nn.getWeights());
+      saveConfig();
     }
   }
   
@@ -243,29 +243,30 @@ class OnlineNeuralShipController extends NeuralShipController
   /**
    * Attempt to load. If fail don't throw just give msg.
    */
-  float[] loadConfig() {
+  float[] loadConfig() { 
     float[] config = null;
     try {
-      ObjectInputStream in = new ObjectInputStream(new FileInputStream(configFile));
-      config = (float[])in.readObject();
+      JSONArray configJson = loadJSONArray(configFile.getAbsolutePath());
+      config = configJson.getFloatArray();
     }
     catch(Exception e) {
+      println("Could not load config");
     }
     return config;
   }
   
   /**
-   * Attempt to save configuration.
+   * Attempt to save configuration as JSON.
+   * Processing says its saves studd "in the sketches directory" where ever that is.
+   * Appears to be /home/sam/local/processing-3.0.2/
    */
-  void saveConfig(File file, Object obj) {
-    try {
-      ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-      out.writeObject(obj);
-      out.close();
+  void saveConfig() {
+    JSONArray config = new JSONArray();
+    float[] weights = nn.getWeights();
+    for(int i = 0; i < weights.length; i++) {
+      config.setFloat(i, weights[i]);
     }
-    catch(Exception e) {
-      throw new RuntimeException(e.getMessage());
-    }
+    saveJSONArray(config, configFile.getAbsolutePath());
   }
 }
 
@@ -282,7 +283,7 @@ class EvolutionaryNeuralShipController extends NeuralShipController
   
   /**
    * Read in a configuration from a persistent list of configurations.
-   * In doing so tell that persistent storage that we have read one.
+   * In doing so tell that persistent storage that we have read one. 
    * Require exclusive lock on persistent list to R/W.
    */
   EvolutionaryNeuralShipController(Ship ship, EntityWorld world, File configFile, File resultsFile) {

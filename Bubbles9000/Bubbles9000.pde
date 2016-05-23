@@ -2,23 +2,28 @@
  * Main entry point for Space Bubbles 9000 game. Configures a game then runs it until end.
  * All game entites are kept in the EntityWorld data structures.
  */
-final int maxTurns = 600;
-/** These ints are type identifiers to ship types. @todo put in classes .. */
+final int maxTurns = 300;
+/** These ints are type identifiers to ship types and or configs. */
 final int stdioShip = 0;
 final int trainedShip = 1;
 final int neuralShip = 2;
 final int evoNeuralShip = 3;
+final int trainedEvoNeuralShip = 4;
 /** Arrangement of ships. Note you can't have trainedShip without stdioShio  */
-//final int[] shipConfig = {stdioShip, trainedShip, neuralShip, evoNeuralShip, evoNeuralShip, evoNeuralShip};
+//final int[] shipConfig = {stdioShip, trainedShip};
+//final int[] shipConfig = {neuralShip, neuralShip, trainedEvoNeuralShip};
 final int[] shipConfig = {neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
 final int numBubbles = 20; /** Starting number of bubble */
 final int additionalHeight = (shipConfig.length+1)*20;
 final int _width = 720;
 final int _height = _width;
 final int binSize = 40;
-final File neuralConfigFile = new File("/tmp/neuron-config.dat"); /** This file holds a set of presumably trained neuron weights. */
-final File evoConfigFile = new File("/tmp/config-pool.json"); /** Input file used by EvolutionaryNeuralShipController */
-final File evoResultFile = new File("/tmp/result-pool.json"); /** Output file used by EvolutionaryNeuralShipController */
+final File evoConfigFile = new File("/tmp/config-pool.json"); /** Input file used by EvolutionaryNeuralShipController. Only used in training */
+final File evoResultFile = new File("/tmp/result-pool.json"); /** Output file used by EvolutionaryNeuralShipController. Only used in training */
+/** These files represent read only configs that are the results of training */
+final String neuralConfigFile1 = "OnlineNeuralShipControllerConfig.json"; /** File holds a set of trained neuron weights. */
+final String neuralConfigFile2 = "EvoNeuralShipControllerConfig.json"; /** File holds a set of trained neuron weights. */
+
 EntityWorld world;
 ArrayList<ShipController> shipControllers = new ArrayList<ShipController>();
 ArrayList<Ship> ships = new ArrayList<Ship>(); 
@@ -67,14 +72,25 @@ void setupSystem() {
       }
       case neuralShip: {
         println("Add computer player.");
-        ShipController controller = new NeuralShipController(s, world);
+        NeuralShipController controller = new NeuralShipController(s, world);
+        setWeights(controller, neuralConfigFile1);
         shipControllers.add(controller);
         controller.begin();
+        s.myColour = #44FF00;
+        break;
+      }
+      case trainedEvoNeuralShip: {
+        println("Add computer player.");
+        NeuralShipController controller = new NeuralShipController(s, world);
+        shipControllers.add(controller);
+        setWeights(controller, neuralConfigFile2);
+        controller.begin();
+        s.myColour = #FF22BB;
         break;
       }
       case evoNeuralShip: {
         println("Add computer player.");
-        ShipController controller = new EvolutionaryNeuralShipController(s, world, evoConfigFile, evoResultFile);
+        EvolutionaryNeuralShipController controller = new EvolutionaryNeuralShipController(s, world, evoConfigFile, evoResultFile);
         shipControllers.add(controller);
         controller.begin();
         break;
@@ -83,6 +99,20 @@ void setupSystem() {
   }
   // Status bar.
   bar = new StatusBar(world, ships, maxTurns);
+}
+
+/**
+ * Set weights of NeuralShipController from some predefined JSON resource.
+ * The resource must be in the data/ dir. If can't be loaded dont fail. Assignment will be random.
+ */
+void setWeights(NeuralShipController c, String jsonResource) {
+  try {
+    JSONArray jsonArray = loadJSONArray(jsonResource);
+    c.setWeights(jsonArray.getFloatArray());
+  }
+  catch(Exception e) {
+    println("Could not load neuron weights resource. Ship will be random.");
+  }
 }
 
 /**
