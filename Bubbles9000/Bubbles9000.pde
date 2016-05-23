@@ -1,7 +1,7 @@
 /**
  * Main of Space Bubbles 9000 game.
  */
-final int maxTurns = 300;
+final int maxTurns = 600;
 /** These ints are type identifiers to ship types. @todo put in classes .. */
 final int stdioShip = 0;
 final int trainedShip = 1;
@@ -127,6 +127,7 @@ void end() {
   }
   drawGameOver();
   noLoop();
+  System.exit(0);
 }
 
 /**
