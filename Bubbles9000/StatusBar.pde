@@ -32,7 +32,7 @@ class StatusBar
     fill(#000000);
     int shipCnt = 1;
     for(Ship a : ships) {
-      statuses += String.format("Ship %d: Health=%03d, Score=%04d\n", shipCnt++, a.health, a.score); 
+      statuses += String.format("Ship %d: Health=%03d, Score=%04d\n", shipCnt++, a.getHealth(), a.score); 
       nLive += a.isLive() ? 1 : 0;
     }
     status = String.format("Turn=%04d/%04d, Live Ships=[%d/%d]\n%s", turn, maxTurns, nLive, nShips, statuses);

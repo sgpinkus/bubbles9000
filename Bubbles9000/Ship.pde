@@ -61,6 +61,7 @@ class Ship extends Entity
   public void kill() {
     super.kill();
     score = 0;
+    world.add(new DeadShip(loc, vel, heading));
   }
   
   void setShadowMode(boolean setting) {

@@ -12,7 +12,7 @@ class Bubble extends Entity
   public Bubble(PVector loc, PVector vel, float r) {
     super(loc, vel, r);
     r = max(min(r, maxRadius), minRadius); // Silently constraint r.
-    health = (int)((r-minRadius)/(maxRadius-minRadius)*health);
+    setHealth((int)((r-minRadius)/(maxRadius-minRadius)*getHealth()));
   }
   
   void draw() {
@@ -46,6 +46,6 @@ class Bubble extends Entity
   }
   
   void radiusHealth() {
-    r = map(health, 0, 100, minRadius, maxRadius);
+    r = map(getHealth(), 0, 100, minRadius, maxRadius);
   }
 }

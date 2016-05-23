@@ -15,8 +15,11 @@ abstract class Entity extends Observable
   /** Everything is circular and has a bound radius. Make thing simple */
   protected float r;
   /** Health. */
-  protected int health = 100;
+  private int health = 100;
   
+  /**
+   * New entity at locaction `loc`, with velocity `vel`, and radius `r`.
+   */
   public Entity(PVector loc, PVector vel, float r) {
     this.loc = loc;
     this.vel = vel;
@@ -30,7 +33,7 @@ abstract class Entity extends Observable
   public abstract void draw();
   
   /** 
-   * Handle collision with another object, `other`.
+   * Handle collision with another object, `e`.
    * Updating velocity is handled at a higher level. Don't do that here.
    */
   public abstract void collision(Entity e, PVector closing);
@@ -79,6 +82,18 @@ abstract class Entity extends Observable
     }
   }
   
+  public int getHealth() {
+    return health;
+  }
+  
+  public void setHealth(int h) {
+    health = max(min(100, h), 0);
+  }
+  
+  /**
+   * After this is called the object should not be isLive().
+   * The object should be removed from the world by it's container.
+   */
   public void kill() {
     health = 0;
   }
