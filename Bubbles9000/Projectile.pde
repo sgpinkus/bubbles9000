@@ -1,3 +1,7 @@
+/**
+ * A projectile fired from a ship.
+ * The projectile knows it origin ship so it can report a hit back to it.
+ */
 class Projectile extends Entity
 {
   Ship myShip;

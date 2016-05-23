@@ -1,5 +1,6 @@
 /**
- * Main of Space Bubbles 9000 game.
+ * Main entry point for Space Bubbles 9000 game. Configures a game then runs it until end.
+ * All game entites are kept in the EntityWorld data structures.
  */
 final int maxTurns = 600;
 /** These ints are type identifiers to ship types. @todo put in classes .. */
@@ -27,13 +28,16 @@ int turn = 0;
 
 void setup() {
   println("In setup()");
-  size(720, 860); // When processing is better = size(_width, _height+additionalHeight)
+  size(720, 860); // Should be size(_width, _height+additionalHeight). Non literals not allowed.
   frameRate(20);
   PFont font = createFont("Bitstream Vera Sans Mono Bold", 32);
   textFont(font, 14);
   setupSystem();
 }
 
+/**
+ * Set up the world.
+ */
 void setupSystem() {
   world = new EntityWorld(_width, _height, binSize);
   // Init bubbles.  
@@ -81,6 +85,9 @@ void setupSystem() {
   bar = new StatusBar(world, ships, maxTurns);
 }
 
+/**
+ * Randomly place `n` new bubbbles in the world.
+ */
 void seedRandomBubbles(int n) {
   for(int i = 0; i < n; i++) {
     Bubble e = new Bubble(

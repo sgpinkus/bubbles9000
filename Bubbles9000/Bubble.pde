@@ -1,3 +1,7 @@
+/**
+ * A bubble entity.
+ * These just bounce around until popped.
+ */
 class Bubble extends Entity
 {
   final float minRadius = 10.0;

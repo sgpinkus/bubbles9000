@@ -1,5 +1,5 @@
 /**
- * A ship entity that can fly around by changin its heading and moment.
+ * A ship entity that can fly around by changing its heading and moment.
  */
 class Ship extends Entity
 {

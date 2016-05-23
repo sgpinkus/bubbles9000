@@ -1,5 +1,6 @@
 /**
- * Abstract ShipController and all sub classes are kept in this file.
+ * Abstract ShipControllers and all sub classes.
+ * Keeping all sub classes here to make them easier to navigate in Processing IDE.
  */
 import perceptrons.*;
 import java.io.*;
