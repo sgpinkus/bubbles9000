@@ -1,4 +1,5 @@
-[
+{ "index": 0,
+  "configs": [
   {
     "score": 2100,
     "config": [
@@ -528,3 +529,4 @@
     "configId": 23
   }
 ]
+}
