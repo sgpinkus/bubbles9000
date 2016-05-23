@@ -2,7 +2,7 @@
  * Main entry point for Space Bubbles 9000 game. Configures a game then runs it until end.
  * All game entites are kept in the EntityWorld data structures.
  */
-final int maxTurns = 300;
+final int maxTurns = 1000;
 /** These ints are type identifiers to ship types and or configs. */
 final int stdioShip = 0;
 final int trainedShip = 1;
@@ -12,7 +12,8 @@ final int trainedEvoNeuralShip = 4;
 /** Arrangement of ships. Note you can't have trainedShip without stdioShio  */
 //final int[] shipConfig = {stdioShip, trainedShip};
 //final int[] shipConfig = {neuralShip, neuralShip, trainedEvoNeuralShip};
-final int[] shipConfig = {neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
+//final int[] shipConfig = {stdioShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
+final int[] shipConfig = {stdioShip, neuralShip, trainedEvoNeuralShip};
 final int numBubbles = 20; /** Starting number of bubble */
 final int additionalHeight = (shipConfig.length+1)*20;
 final int _width = 720;
@@ -30,10 +31,11 @@ ArrayList<Ship> ships = new ArrayList<Ship>();
 StdioShipController player = null; 
 StatusBar bar;
 int turn = 0;
+boolean gameOver = false;
 
 void setup() {
   println("In setup()");
-  size(720, 860); // Should be size(_width, _height+additionalHeight). Non literals not allowed.
+  size(720,800); // Should be size(_width, _height+additionalHeight). Non literals not allowed.
   frameRate(20);
   PFont font = createFont("Bitstream Vera Sans Mono Bold", 32);
   textFont(font, 14);
@@ -103,9 +105,11 @@ void setupSystem() {
 
 /**
  * Set weights of NeuralShipController from some predefined JSON resource.
- * The resource must be in the data/ dir. If can't be loaded dont fail. Assignment will be random.
+ * The resource must be in the data/ dir. In fact Processing will check "the sketches dir" too..
+ * If can't be loaded dont fail. Assignment will be random.
  */
 void setWeights(NeuralShipController c, String jsonResource) {
+  println("Loading from " + jsonResource);
   try {
     JSONArray jsonArray = loadJSONArray(jsonResource);
     c.setWeights(jsonArray.getFloatArray());
@@ -137,6 +141,9 @@ void draw() {
     end();
     return;
   }
+  else if(gameOver) {
+    doExit();
+  }
   for(ShipController c : shipControllers) {
     if(c.ship.isLive())
       c.turn(turn);
@@ -163,7 +170,15 @@ void end() {
     c.end();
   }
   drawGameOver();
-  noLoop();
+  gameOver = true;
+}
+
+void doExit() {
+  try {
+      Thread.sleep(3000);                 //1000 milliseconds is one second.
+  } catch(InterruptedException ex) {
+      Thread.currentThread().interrupt();
+  }
   System.exit(0);
 }
 
