@@ -12,8 +12,8 @@ final int trainedEvoNeuralShip = 4;
 /** Arrangement of ships. Note you can't have trainedShip without stdioShio  */
 //final int[] shipConfig = {stdioShip, trainedShip};
 //final int[] shipConfig = {neuralShip, neuralShip, trainedEvoNeuralShip};
-//final int[] shipConfig = {stdioShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
-final int[] shipConfig = {stdioShip, neuralShip, trainedEvoNeuralShip};
+//final int[] shipConfig = {neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
+final int[] shipConfig = {stdioShip, neuralShip, trainedEvoNeuralShip, neuralShip, trainedEvoNeuralShip};
 final int numBubbles = 20; /** Starting number of bubble */
 final int additionalHeight = (shipConfig.length+1)*20;
 final int _width = 720;
@@ -35,7 +35,7 @@ boolean gameOver = false;
 
 void setup() {
   println("In setup()");
-  size(720,800); // Should be size(_width, _height+additionalHeight). Non literals not allowed.
+  size(720,840); // Should be size(_width, _height+additionalHeight). Non literals not allowed. 800 = 3 ships.
   frameRate(20);
   PFont font = createFont("Bitstream Vera Sans Mono Bold", 32);
   textFont(font, 14);
@@ -100,7 +100,7 @@ void setupSystem() {
     }
   }
   // Status bar.
-  bar = new StatusBar(world, ships, maxTurns);
+  bar = new StatusBar(world, shipControllers, maxTurns);
 }
 
 /**
@@ -175,7 +175,7 @@ void end() {
 
 void doExit() {
   try {
-      Thread.sleep(3000);                 //1000 milliseconds is one second.
+      Thread.sleep(5000);                 //1000 milliseconds is one second.
   } catch(InterruptedException ex) {
       Thread.currentThread().interrupt();
   }

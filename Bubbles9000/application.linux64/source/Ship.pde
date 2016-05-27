@@ -53,9 +53,17 @@ class Ship extends Entity
       addHealth((int)-impact);
     }
   }
+ 
+  int getScore() {
+    return this.score;
+  }
   
   void addScore(int score) {
     this.score += score;
+  }
+  
+  void setScore(int score) {
+    this.score = score;
   }
   
   public void kill() {
@@ -94,7 +102,7 @@ class Ship extends Entity
         missile = new ProjectileDud(loc.copy(), fixedHeading.copy().mult(10), this);
       }
       else {
-        missile = new Projectile(loc.copy(), fixedHeading.copy().mult(10), this);
+        missile = new Projectile(loc.copy().add(fixedHeading.copy().mult(r*1.4)), fixedHeading.copy().mult(12), this);
       }
       world.add(missile);
     }

@@ -37,8 +37,8 @@ final int trainedEvoNeuralShip = 4;
 /** Arrangement of ships. Note you can't have trainedShip without stdioShio  */
 //final int[] shipConfig = {stdioShip, trainedShip};
 //final int[] shipConfig = {neuralShip, neuralShip, trainedEvoNeuralShip};
-//final int[] shipConfig = {stdioShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
-final int[] shipConfig = {stdioShip, neuralShip, trainedEvoNeuralShip};
+//final int[] shipConfig = {neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
+final int[] shipConfig = {stdioShip, neuralShip, trainedEvoNeuralShip, neuralShip, trainedEvoNeuralShip};
 final int numBubbles = 20; /** Starting number of bubble */
 final int additionalHeight = (shipConfig.length+1)*20;
 final int _width = 720;
@@ -60,7 +60,7 @@ boolean gameOver = false;
 
 public void setup() {
   println("In setup()");
-   // Should be size(_width, _height+additionalHeight). Non literals not allowed.
+   // Should be size(_width, _height+additionalHeight). Non literals not allowed. 800 = 3 ships.
   frameRate(20);
   PFont font = createFont("Bitstream Vera Sans Mono Bold", 32);
   textFont(font, 14);
@@ -125,7 +125,7 @@ public void setupSystem() {
     }
   }
   // Status bar.
-  bar = new StatusBar(world, ships, maxTurns);
+  bar = new StatusBar(world, shipControllers, maxTurns);
 }
 
 /**
@@ -200,7 +200,7 @@ public void end() {
 
 public void doExit() {
   try {
-      Thread.sleep(3000);                 //1000 milliseconds is one second.
+      Thread.sleep(5000);                 //1000 milliseconds is one second.
   } catch(InterruptedException ex) {
       Thread.currentThread().interrupt();
   }
@@ -717,8 +717,7 @@ class Projectile extends Entity
       myShip.addScore(100);
     }
     else if(e instanceof Ship && !e.isLive()) {
-      myShip.addScore(500);
-      ((Ship)e).addScore(-500);
+      myShip.addScore(1000);
     }
     kill();
   }
@@ -826,9 +825,17 @@ class Ship extends Entity
       addHealth((int)-impact);
     }
   }
+ 
+  public int getScore() {
+    return this.score;
+  }
   
   public void addScore(int score) {
     this.score += score;
+  }
+  
+  public void setScore(int score) {
+    this.score = score;
   }
   
   public void kill() {
@@ -867,7 +874,7 @@ class Ship extends Entity
         missile = new ProjectileDud(loc.copy(), fixedHeading.copy().mult(10), this);
       }
       else {
-        missile = new Projectile(loc.copy(), fixedHeading.copy().mult(10), this);
+        missile = new Projectile(loc.copy().add(fixedHeading.copy().mult(r*1.4f)), fixedHeading.copy().mult(12), this);
       }
       world.add(missile);
     }
@@ -1079,7 +1086,7 @@ class NeuralShipController extends ShipController
   NeuralShipController(Ship ship, EntityWorld world) {
     super(ship);
     this.world = world;
-    nn = new PerceptronNetwork(4,4, new Perceptron.Sign());
+    nn = new PerceptronNetwork(4,4, new Perceptron.Sign(), 0.01f);
     ship.myColour = 0xffFF0000;
   }
   
@@ -1274,6 +1281,7 @@ class EvolutionaryNeuralShipController extends NeuralShipController
   
   /**
    * Store the config and score pair.
+   * If an existing result pool DNE create it.s
    */
   public void storeResult(float[] config, int configId, float score) {
     println("Saving results list to " + resultFile.getAbsolutePath());
@@ -1281,11 +1289,16 @@ class EvolutionaryNeuralShipController extends NeuralShipController
     
     // Load list.
     JSONArray arr = null;
-    if(!(resultFile.length() > 0)) {
-      arr = new JSONArray();
+    JSONObject obj;
+    if(resultFile.length() > 0) {
+      obj = loadJSONObject(resultFile.getAbsolutePath());
+      arr = obj.getJSONArray("configs");
     }
     else {
-      arr = loadJSONArray(resultFile.getAbsolutePath());
+      obj = new JSONObject();
+      arr = new JSONArray();
+      obj.setJSONArray("configs", arr);
+      obj.setInt("index", 0);
     }
     
     // Buld config object
@@ -1299,7 +1312,7 @@ class EvolutionaryNeuralShipController extends NeuralShipController
     result.setFloat("score", score);
     
     // Save result.
-    saveJSONArray(arr, resultFile.getAbsolutePath());
+    saveJSONObject(obj, resultFile.getAbsolutePath());
     try {
       fl.release();
     }
@@ -1353,21 +1366,21 @@ class StatusBar
 {
   final int lineHeight = 20;
   EntityWorld world;
-  ArrayList<Ship> ships;
+  ArrayList<ShipController> controllers;
   int myHeight;
   int maxTurns;
  
-  StatusBar(EntityWorld world, ArrayList<Ship> ships, int maxTurns) {
+  StatusBar(EntityWorld world, ArrayList<ShipController> controllers, int maxTurns) {
     this.world = world;
-    this.ships = ships;
+    this.controllers = controllers;
     this.maxTurns = maxTurns;
-    myHeight = (ships.size()+1)*lineHeight;
+    myHeight = (controllers.size()+1)*lineHeight;
   }
   
   public void draw(int turn) {
     String statuses = "";
     String status;
-    int nShips = ships.size();
+    int nShips = controllers.size();
     int nLive = 0;
     textAlign(LEFT);
     textSize(14);
@@ -1375,14 +1388,20 @@ class StatusBar
     rectMode(CORNER);
     fill(0xffFFFFFF);
     rect(0, height-myHeight, width, myHeight); 
-    fill(0xff000000);
     int shipCnt = 1;
-    for(Ship a : ships) {
-      statuses += String.format("Ship %d: Health=%03d, Score=%04d\n", shipCnt++, a.getHealth(), a.score); 
-      nLive += a.isLive() ? 1 : 0;
+    pushMatrix();
+    translate(0,height-myHeight+lineHeight);
+    for(ShipController a : controllers) {
+      String statusLine = String.format("Ship %d: Health=%03d, Score=%04d\n", shipCnt++, a.ship.getHealth(), a.ship.getScore()); 
+      nLive += a.ship.isLive() ? 1 : 0;
+      fill(a.ship.myColour);
+      text(statusLine, 1, 0);
+      translate(0, lineHeight);
     }
-    status = String.format("Turn=%04d/%04d, Live Ships=[%d/%d]\n%s", turn, maxTurns, nLive, nShips, statuses);
-    text(status, 1, height-myHeight+lineHeight);
+    status = String.format("Turn=%04d/%04d, Live Ships=[%d/%d]\n", turn, maxTurns, nLive, nShips);
+    fill(0xff000000);
+    text(status, 1, 0);
+    popMatrix();
   }
 }
 
@@ -1410,7 +1429,7 @@ public float _angleBetween(PVector aIn, PVector bIn) {
   }
   return angle;
 }
-  public void settings() {  size(720,800); }
+  public void settings() {  size(720,840); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "Bubbles9000" };
     if (passedArgs != null) {

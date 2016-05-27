@@ -162,7 +162,7 @@ class NeuralShipController extends ShipController
   NeuralShipController(Ship ship, EntityWorld world) {
     super(ship);
     this.world = world;
-    nn = new PerceptronNetwork(4,4, new Perceptron.Sign());
+    nn = new PerceptronNetwork(4,4, new Perceptron.Sign(), 0.01f);
     ship.myColour = #FF0000;
   }
   
@@ -357,6 +357,7 @@ class EvolutionaryNeuralShipController extends NeuralShipController
   
   /**
    * Store the config and score pair.
+   * If an existing result pool DNE create it.s
    */
   void storeResult(float[] config, int configId, float score) {
     println("Saving results list to " + resultFile.getAbsolutePath());
@@ -364,11 +365,16 @@ class EvolutionaryNeuralShipController extends NeuralShipController
     
     // Load list.
     JSONArray arr = null;
-    if(!(resultFile.length() > 0)) {
-      arr = new JSONArray();
+    JSONObject obj;
+    if(resultFile.length() > 0) {
+      obj = loadJSONObject(resultFile.getAbsolutePath());
+      arr = obj.getJSONArray("configs");
     }
     else {
-      arr = loadJSONArray(resultFile.getAbsolutePath());
+      obj = new JSONObject();
+      arr = new JSONArray();
+      obj.setJSONArray("configs", arr);
+      obj.setInt("index", 0);
     }
     
     // Buld config object
@@ -382,7 +388,7 @@ class EvolutionaryNeuralShipController extends NeuralShipController
     result.setFloat("score", score);
     
     // Save result.
-    saveJSONArray(arr, resultFile.getAbsolutePath());
+    saveJSONObject(obj, resultFile.getAbsolutePath());
     try {
       fl.release();
     }
