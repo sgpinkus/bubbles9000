@@ -12,8 +12,8 @@ final int trainedEvoNeuralShip = 4;
 /** Arrangement of ships. Note you can't have trainedShip without stdioShio  */
 //final int[] shipConfig = {stdioShip, trainedShip};
 //final int[] shipConfig = {neuralShip, neuralShip, trainedEvoNeuralShip};
-//final int[] shipConfig = {stdioShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
-final int[] shipConfig = {stdioShip, neuralShip, trainedEvoNeuralShip};
+final int[] shipConfig = {stdioShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip, neuralShip, evoNeuralShip};
+//final int[] shipConfig = {stdioShip, neuralShip, trainedEvoNeuralShip};
 final int numBubbles = 20; /** Starting number of bubble */
 final int additionalHeight = (shipConfig.length+1)*20;
 final int _width = 720;
@@ -100,7 +100,7 @@ void setupSystem() {
     }
   }
   // Status bar.
-  bar = new StatusBar(world, ships, maxTurns);
+  bar = new StatusBar(world, shipControllers, maxTurns);
 }
 
 /**
